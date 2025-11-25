@@ -75,13 +75,13 @@
             flex-direction: column;
             flex: 1;
             width: 100%;
-            height: 100%; /* 確保填滿 */
-            overflow-y: auto; /* 避免選單內容過多被切掉 */
+            height: 100%;
+            overflow-y: auto;
             align-items: center;
         }
         .page.active { display: flex; }
 
-        /* --- 新版選單樣式 --- */
+        /* --- 選單樣式 --- */
         .menu-section {
             width: 100%;
             margin-bottom: 20px;
@@ -98,7 +98,6 @@
             padding-left: 5px;
         }
 
-        /* 選項按鈕通用樣式 */
         .option-btn {
             background-color: var(--btn-select);
             border: 2px solid var(--btn-select-border);
@@ -121,18 +120,15 @@
             box-shadow: none;
         }
 
-        /* 選中狀態 */
         .option-btn.selected {
             background-color: var(--btn-select-active);
             border-color: var(--btn-select-active-border);
             color: var(--btn-select-active-text);
             box-shadow: 0 4px 0 var(--btn-select-active-border);
         }
-        .option-btn.selected:active {
-            box-shadow: none;
-        }
+        .option-btn.selected:active { box-shadow: none; }
 
-        /* 遊戲模式 1x2 Grid */
+        /* Grid Layouts */
         .grid-1x2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -140,16 +136,14 @@
             width: 100%;
         }
 
-        /* 測驗數量 2x3 Grid */
         .grid-2x3 {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3欄 */
-            grid-template-rows: auto auto; /* 2列 */
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: auto auto;
             gap: 15px;
             width: 100%;
         }
 
-        /* 開始按鈕 */
         .start-btn-container {
             margin-top: auto;
             width: 100%;
@@ -169,10 +163,7 @@
             cursor: pointer;
             box-shadow: 0 4px 0 var(--btn-primary-shadow);
         }
-        .btn-primary:active {
-            transform: translateY(4px);
-            box-shadow: none;
-        }
+        .btn-primary:active { transform: translateY(4px); box-shadow: none; }
 
         /* --- 遊戲介面樣式 --- */
         .game-info {
@@ -275,9 +266,7 @@
 
         .result-correct { color: var(--correct-color); }
         .result-wrong { color: var(--wrong-color); }
-        .char-correct { color: var(--correct-color); }
-        .char-wrong { color: var(--wrong-color); }
-
+        
         .nav-area {
             width: 100%;
             display: flex;
@@ -325,7 +314,6 @@
         </header>
 
         <div id="entry-page" class="page active">
-            
             <div class="menu-section" style="margin-top: 20px;">
                 <label class="menu-label">遊戲模式</label>
                 <div class="grid-1x2">
@@ -396,32 +384,18 @@
         // 選單邏輯
         const menu = {
             config: { mode: 'han', count: 5 },
-            
-            selectMode: function(mode, el) {
-                this.config.mode = mode;
-                this.updateUI('.grid-1x2', el);
-            },
-            
-            selectCount: function(count, el) {
-                this.config.count = count;
-                this.updateUI('.grid-2x3', el);
-            },
-            
+            selectMode: function(mode, el) { this.config.mode = mode; this.updateUI('.grid-1x2', el); },
+            selectCount: function(count, el) { this.config.count = count; this.updateUI('.grid-2x3', el); },
             updateUI: function(containerSelector, activeEl) {
                 const container = document.querySelector(containerSelector);
-                const buttons = container.querySelectorAll('.option-btn');
-                buttons.forEach(btn => btn.classList.remove('selected'));
+                container.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
                 activeEl.classList.add('selected');
             }
         };
 
-        // 遊戲核心邏輯
+        // 遊戲邏輯
         const game = {
-            state: {
-                queue: [],
-                currentIndex: 0,
-                isRecording: false
-            },
+            state: { queue: [], currentIndex: 0, isRecording: false },
             elements: {
                 entryPage: document.getElementById('entry-page'),
                 gamePage: document.getElementById('game-page'),
@@ -447,7 +421,6 @@
             },
 
             start: function() {
-                const mode = menu.config.mode;
                 const countVal = menu.config.count;
                 const count = countVal === 'all' ? database.length : parseInt(countVal);
 
@@ -456,10 +429,7 @@
                 
                 this.state.queue = [];
                 while(this.state.queue.length < count) {
-                    if (pool.length === 0) {
-                        pool = [...database];
-                        this.shuffle(pool);
-                    }
+                    if (pool.length === 0) { pool = [...database]; this.shuffle(pool); }
                     this.state.queue.push(pool.pop());
                 }
 
@@ -493,11 +463,10 @@
                 this.elements.defText.innerText = currentQ.def;
                 this.elements.audioPlayer.src = currentQ.audio;
 
-                // 重置狀態
                 this.elements.feedbackContent.innerHTML = "";
                 this.elements.feedbackSub.innerText = "";
                 this.elements.micBtn.classList.remove('recording');
-                this.elements.micBtn.style.pointerEvents = 'auto'; // 啟用麥克風
+                this.elements.micBtn.style.pointerEvents = 'auto';
                 this.elements.nextBtn.style.visibility = 'hidden';
                 this.state.isRecording = false;
             },
@@ -511,19 +480,15 @@
                 this.elements.displayText.style.fontSize = fontSize;
             },
 
-            playAudio: function() {
-                this.elements.audioPlayer.play();
-            },
+            playAudio: function() { this.elements.audioPlayer.play(); },
 
             record: function() {
                 if (this.state.isRecording) return;
-                
                 this.state.isRecording = true;
                 this.elements.micBtn.classList.add('recording');
                 this.elements.feedbackContent.innerHTML = "聆聽中...";
                 this.elements.feedbackSub.innerText = "";
 
-                // 模擬 2秒 錄音
                 setTimeout(() => {
                     this.elements.micBtn.classList.remove('recording');
                     this.checkAnswerMock();
@@ -531,39 +496,29 @@
             },
 
             checkAnswerMock: function() {
-                const score = Math.floor(Math.random() * 101); // 隨機分數 0-100
+                // 模擬相似度評分 (0-100)
+                // 依據需求：男聲、女聲、老人、小孩及速度不在對比範圍內，
+                // 這代表語音識別引擎（模擬）具有高度包容性，
+                // 且只要 20% 相似即判定為正確。
+                
+                const score = Math.floor(Math.random() * 101); // 0-100 隨機
                 const currentQ = this.state.queue[this.state.currentIndex];
                 const correctText = menu.config.mode === 'han' ? currentQ.han : currentQ.tailo;
 
                 this.state.isRecording = false;
+                this.elements.nextBtn.style.visibility = 'visible'; // 顯示下一題
 
-                // 1. 無論結果如何，都顯示「下一題」按鈕，讓使用者決定
-                this.elements.nextBtn.style.visibility = 'visible';
-
-                if (score >= 80) {
-                    // 正確
+                // 只要 >= 20% 即視為正確
+                if (score >= 20) {
+                    // 正確回饋
                     this.elements.displayText.innerHTML = `<span class="result-correct">${correctText}</span>`;
                     this.elements.feedbackContent.innerHTML = `<span class="result-correct">正確！共你拍噗仔！</span>`;
-                    // 答對鎖定麥克風，避免重複刷
-                    this.elements.micBtn.style.pointerEvents = 'none';
-                } else if (score < 40) {
-                    // 錯誤
+                    this.elements.micBtn.style.pointerEvents = 'none'; // 鎖定
+                } else {
+                    // 錯誤回饋 (小於 20%)
                     this.elements.displayText.innerHTML = `<span class="result-wrong">${correctText}</span>`;
                     this.elements.feedbackContent.innerHTML = `<span class="result-wrong">毋著！你閣試一擺！</span>`;
-                    // 答錯「不」鎖定麥克風，允許使用者重試 (如果他們想的話)，但下一題按鈕已出現
-                    this.elements.micBtn.style.pointerEvents = 'auto';
-                } else {
-                    // 部分錯誤
-                    let mixedHtml = '';
-                    const chars = [...correctText];
-                    chars.forEach(char => {
-                        const isCharCorrect = Math.random() > 0.3;
-                        mixedHtml += `<span class="${isCharCorrect ? 'char-correct' : 'char-wrong'}">${char}</span>`;
-                    });
-                    this.elements.displayText.innerHTML = mixedHtml;
-                    this.elements.feedbackContent.innerHTML = `部分毋著，閣一改！`;
-                    // 部分錯誤也不鎖定麥克風
-                    this.elements.micBtn.style.pointerEvents = 'auto';
+                    this.elements.micBtn.style.pointerEvents = 'auto'; // 可重試
                 }
             },
 
