@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>進階口說練習 - 教育部台語俗諺</title>
+    <title>進階口說練習 - 終極修復版</title>
     
     <link href="https://tauhu.tw/tauhu-oo.css" rel="stylesheet">
 
@@ -11,13 +11,8 @@
         :root {
             --font-main: 'tauhu-oo', sans-serif;
             --duo-green: #58cc02;
-            --duo-green-shadow: #58a700;
             --duo-red: #ff4b4b;
-            --duo-red-shadow: #ea2b2b;
             --duo-blue: #1cb0f6;
-            --duo-blue-shadow: #1899d6;
-            --duo-yellow: #ffc800;
-            --duo-yellow-shadow: #e5b400;
             --duo-gray: #e5e5e5;
             --duo-text: #4b4b4b;
             --bg-start: #FFDEE9;
@@ -36,8 +31,7 @@
             padding: 0;
             font-family: var(--font-main);
             background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
-            height: 100vh; 
-            height: 100dvh; /* 確保手機滿版 */
+            height: 100dvh;
             width: 100vw;
             overflow: hidden;
             display: flex;
@@ -50,7 +44,6 @@
         #app-container {
             width: 96%;
             max-width: 800px;
-            height: 96vh;
             height: 96dvh;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 16px;
@@ -59,7 +52,6 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            transition: all 0.3s ease;
         }
 
         @media (max-width: 768px) {
@@ -68,7 +60,6 @@
                 height: 100%;
                 border-radius: 0;
                 padding: 10px;
-                box-shadow: none;
             }
             h2 { display: none; }
             header { margin-bottom: 5px !important; padding-bottom: 5px !important; }
@@ -83,7 +74,7 @@
             padding-bottom: 5px;
         }
 
-        h1 { font-size: 1.2rem; margin: 0; color: var(--duo-blue-shadow); }
+        h1 { font-size: 1.2rem; margin: 0; color: #1cb0f6; }
         h2 { font-size: 0.8rem; margin: 0; color: #888; font-weight: normal; }
 
         #menu-screen {
@@ -113,9 +104,9 @@
             outline: none;
         }
 
-        .btn:active, .btn.active {
+        .btn.active {
             background-color: var(--duo-blue);
-            border-color: var(--duo-blue-shadow);
+            border-color: #1899d6;
             color: white;
             border-bottom-width: 2px;
             transform: translateY(2px);
@@ -123,7 +114,7 @@
 
         .btn-start {
             background-color: var(--duo-green);
-            border-color: var(--duo-green-shadow);
+            border-color: #58a700;
             color: white;
             font-size: 1.1rem;
             padding: 12px 30px;
@@ -179,7 +170,6 @@
             overflow-y: auto;
             flex-shrink: 1;
         }
-        .definition::-webkit-scrollbar { display: none; }
 
         .result-box {
             width: 100%;
@@ -192,9 +182,6 @@
             flex-direction: column;
             justify-content: center;
             gap: 2px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            flex-shrink: 0;
             margin-top: 5px;
         }
         .result-box.show { display: flex; }
@@ -216,13 +203,22 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-        .recognized-text {
-            font-size: 0.8rem;
-            color: #888;
-            margin: 2px 0;
-            min-height: 1rem;
-            font-style: italic;
-            flex-shrink: 0;
+        /* 狀態顯示區 (除錯用) */
+        .status-log {
+            font-size: 0.85rem;
+            color: #1cb0f6;
+            background: #eef9ff;
+            padding: 4px 10px;
+            border-radius: 15px;
+            margin: 5px 0;
+            min-height: 1.5em;
+            font-weight: bold;
+            animation: fadeHighlight 1s infinite alternate;
+        }
+        
+        @keyframes fadeHighlight {
+            from { opacity: 0.8; }
+            to { opacity: 1; }
         }
 
         .controls-footer {
@@ -237,8 +233,6 @@
             padding-bottom: 5px;
         }
 
-        .mic-status-text { font-size: 0.75rem; color: #999; height: 1em; }
-
         .controls-row {
             display: flex;
             width: 100%;
@@ -248,12 +242,11 @@
         }
 
         .center-controls { display: flex; align-items: center; gap: 15px; }
-
         .nav-btn { font-size: 0.9rem; padding: 8px 12px; min-width: 60px; }
 
         .audio-btn {
             background-color: var(--duo-blue);
-            border-color: var(--duo-blue-shadow);
+            border-color: #1899d6;
             color: white;
             border-radius: 50%;
             width: 45px;
@@ -279,19 +272,14 @@
             position: relative;
         }
         
-        .mic-btn.listening { border-color: var(--duo-red); color: var(--duo-red); animation: pulse 1.5s infinite; }
-        .mic-btn.processing { border-color: var(--duo-yellow); color: var(--duo-yellow); animation: spin 1s infinite linear; }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 75, 75, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(255, 75, 75, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 75, 75, 0); }
+        .mic-btn.listening { 
+            border-color: var(--duo-red); 
+            color: var(--duo-red); 
+            box-shadow: 0 0 15px rgba(255, 75, 75, 0.5);
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); border-bottom-color: var(--duo-yellow-shadow); }
-            100% { transform: rotate(360deg); border-bottom-color: var(--duo-yellow-shadow); }
-        }
+        .mic-btn.processing { border-color: var(--duo-yellow); color: var(--duo-yellow); }
 
+        /* 音譜動畫 */
         .spectrum-container {
             display: none;
             height: 30px;
@@ -360,7 +348,6 @@
 
             <div class="question-content">
                 <div class="question-text" id="display-text"></div>
-                
                 <div class="definition" id="definition-text"></div>
                 
                 <div class="spectrum-container" id="spectrum-visual">
@@ -370,24 +357,19 @@
                     <div class="spectrum-bar"></div>
                 </div>
 
-                <div class="recognized-text" id="recognized-text"></div>
+                <div class="status-log" id="status-log">準備就緒</div>
 
                 <div class="result-box" id="result-feedback"></div>
-
                 <div class="answer-display" id="answer-text"></div>
             </div>
 
             <div class="controls-footer">
-                <div class="mic-status-text" id="mic-status">點擊錄音 (5秒)</div>
-                
                 <div class="controls-row">
                     <button class="btn nav-btn" onclick="game.goBack()">重洗</button>
-                    
                     <div class="center-controls">
                         <button class="btn audio-btn" onclick="game.playAudio()">🔊</button>
                         <button class="btn mic-btn" id="mic-btn" onclick="game.recordVoice()">🎤</button>
                     </div>
-                    
                     <button class="btn nav-btn" id="next-btn" onclick="game.nextQuestion()" disabled>下一題</button>
                 </div>
             </div>
@@ -401,41 +383,11 @@
         document.onselectstart = function() { return false; };
 
         const database = [
-            {
-                id: 1,
-                hanji: "鴨仔聽雷",
-                lomaji: "Ah-á thiann luî",
-                mean: "指鴨子聽到雷聲，並不知道是怎麼回事。比喻一個人對所接收的訊息無法理解。",
-                audio: "https://sutian.moe.edu.tw/media/senn/mp3/imtong/39/IR/272041.mp3"
-            },
-            {
-                id: 2,
-                hanji: "愛拚才會贏",
-                lomaji: "Ài piànn tsiah ē iânn",
-                mean: "要努力才會贏。比喻唯有努力奮鬥，才能克服困難，成就一番事業。",
-                audio: "https://sutian.moe.edu.tw/media/senn/mp3/imtong/Yx/s7/271611.mp3"
-            },
-            {
-                id: 3,
-                hanji: "愛媠毋驚流鼻水",
-                lomaji: "Ài-suí m̄ kiann lâu phīnn-tsuí",
-                mean: "為了展示自己姣好的身材，天氣再冷，寧可挨寒受凍，也不願多穿衣服。常用以揶揄女性愛美，寧可付出代價，也在所不惜。",
-                audio: "https://sutian.moe.edu.tw/media/senn/mp3/imtong/4v/iB/271621.mp3"
-            },
-            {
-                id: 4,
-                hanji: "暗頓減食一口，活甲九十九",
-                lomaji: "Àm-tǹg kiám tsia̍h tsi̍t kháu, ua̍h kah káu-tsa̍p-káu",
-                mean: "晚餐少吃一口，活到九十九。說明晚餐的食用量少一點，有益身體健康。",
-                audio: "https://sutian.moe.edu.tw/media/senn/mp3/imtong/Gj/cz/271641.mp3"
-            },
-            {
-                id: 5,
-                hanji: "翁仔某是相欠債",
-                lomaji: "Ang-á-bóo sī sio-khiàm-tsè",
-                mean: "今世有緣結為夫妻，乃因前世因果，互相欠債所致。勸雙方姻緣前定，應以和為貴。",
-                audio: "https://sutian.moe.edu.tw/media/senn/mp3/imtong/s4/HC/270931.mp3"
-            }
+            { id: 1, hanji: "鴨仔聽雷", lomaji: "Ah-á thiann luî", mean: "指鴨子聽到雷聲，並不知道是怎麼回事。比喻一個人對所接收的訊息無法理解。", audio: "https://sutian.moe.edu.tw/media/senn/mp3/imtong/39/IR/272041.mp3" },
+            { id: 2, hanji: "愛拚才會贏", lomaji: "Ài piànn tsiah ē iânn", mean: "要努力才會贏。比喻唯有努力奮鬥，才能克服困難，成就一番事業。", audio: "https://sutian.moe.edu.tw/media/senn/mp3/imtong/Yx/s7/271611.mp3" },
+            { id: 3, hanji: "愛媠毋驚流鼻水", lomaji: "Ài-suí m̄ kiann lâu phīnn-tsuí", mean: "為了展示自己姣好的身材，天氣再冷，寧可挨寒受凍，也不願多穿衣服。常用以揶揄女性愛美，寧可付出代價，也在所不惜。", audio: "https://sutian.moe.edu.tw/media/senn/mp3/imtong/4v/iB/271621.mp3" },
+            { id: 4, hanji: "暗頓減食一口，活甲九十九", lomaji: "Àm-tǹg kiám tsia̍h tsi̍t kháu, ua̍h kah káu-tsa̍p-káu", mean: "晚餐少吃一口，活到九十九。說明晚餐的食用量少一點，有益身體健康。", audio: "https://sutian.moe.edu.tw/media/senn/mp3/imtong/Gj/cz/271641.mp3" },
+            { id: 5, hanji: "翁仔某是相欠債", lomaji: "Ang-á-bóo sī sio-khiàm-tsè", mean: "今世有緣結為夫妻，乃因前世因果，互相欠債所致。勸雙方姻緣前定，應以和為貴。", audio: "https://sutian.moe.edu.tw/media/senn/mp3/imtong/s4/HC/270931.mp3" }
         ];
 
         const game = {
@@ -445,14 +397,21 @@
             audioElement: document.getElementById('question-audio'),
             recognition: null,
             isRecording: false,
-            
-            // 儲存最佳辨識結果 (包含 Interim 結果)
-            bestTranscript: "", 
+            finalTranscript: "", // 儲存最終辨識文字
             recognitionTimeout: null,
 
             init: function() {
                 this.setupMenu();
                 this.setupSpeechRecognition();
+                this.checkEnvironment();
+            },
+
+            checkEnvironment: function() {
+                // 檢查是否為 LINE/FB 內建瀏覽器
+                const ua = navigator.userAgent || navigator.vendor || window.opera;
+                if ((ua.indexOf("FBAN") > -1) || (ua.indexOf("FBAV") > -1) || (ua.indexOf("Line") > -1)) {
+                    alert("請點選右上角選單，選擇「以 Chrome 開啟」或「以 Safari 開啟」，否則麥克風無法運作。");
+                }
             },
 
             setupMenu: function() {
@@ -478,66 +437,83 @@
                 if (SpeechRecognition) {
                     this.recognition = new SpeechRecognition();
                     this.recognition.continuous = false;
+                    this.recognition.interimResults = true; // 重要：啟用臨時結果
+                    this.recognition.lang = 'cmn-Hant-TW'; // 使用繁中引擎
                     
-                    // 關鍵修正：啟用 interimResults 抓取不完整的語音片段
-                    this.recognition.interimResults = true; 
-                    this.recognition.lang = 'cmn-Hant-TW'; 
-                    
-                    this.recognition.onresult = (event) => {
-                        // 這裡我們不斷更新 "目前聽到最好的結果"
-                        // 因為 Android 有時不會發送 isFinal=true 的結果就斷線
-                        let interimTranscript = '';
-                        let finalTranscript = '';
+                    this.recognition.onstart = () => {
+                        this.updateStatus("麥克風已啟動，請說話...");
+                        document.getElementById('mic-btn').classList.add('listening');
+                        document.getElementById('spectrum-visual').style.display = 'flex';
+                    };
 
+                    this.recognition.onaudiostart = () => {
+                        // 偵測到音頻輸入
+                        console.log("Audio started");
+                    };
+
+                    this.recognition.onresult = (event) => {
+                        this.updateStatus("偵測到語音...");
+                        let interimTranscript = '';
+                        
                         for (let i = event.resultIndex; i < event.results.length; ++i) {
                             if (event.results[i].isFinal) {
-                                finalTranscript += event.results[i][0].transcript;
+                                this.finalTranscript = event.results[i][0].transcript;
                             } else {
-                                interimTranscript += event.results[i][0].transcript;
+                                interimTranscript = event.results[i][0].transcript;
                             }
                         }
                         
-                        // 優先使用 Final，沒有的話使用 Interim
-                        // 這樣即使是半句話，我們也先存起來
-                        this.bestTranscript = finalTranscript || interimTranscript;
-                        console.log("Captured:", this.bestTranscript);
+                        // 如果還沒 Final，先用 Interim 頂著，避免斷線後沒東西
+                        if (!this.finalTranscript && interimTranscript) {
+                            this.finalTranscript = interimTranscript;
+                        }
+                        
+                        console.log("Current Text:", this.finalTranscript);
                     };
 
-                    this.recognition.onspeechend = () => {
-                        try { this.recognition.stop(); } catch(e) {}
+                    this.recognition.onend = () => {
+                         this.isRecording = false;
+                         if(this.recognitionTimeout) clearTimeout(this.recognitionTimeout);
+                         
+                         document.getElementById('mic-btn').classList.remove('listening');
+                         document.getElementById('spectrum-visual').style.display = 'none';
+
+                         // 檢查是否有抓到字
+                         if (this.finalTranscript && this.finalTranscript.length > 0) {
+                             this.processAnalysis(this.finalTranscript);
+                         } else {
+                             // 真的沒抓到任何字
+                             this.updateStatus("未偵測到語音，請靠近重試");
+                             setTimeout(() => {
+                                 if(!this.isRecording) this.updateStatus("請點擊麥克風");
+                             }, 2000);
+                         }
                     };
 
                     this.recognition.onerror = (event) => {
                         console.error("Speech error:", event.error);
-                        if(this.recognitionTimeout) clearTimeout(this.recognitionTimeout);
-                        
                         if (event.error === 'no-speech') {
-                            // no-speech 錯誤時，如果我們之前有抓到 interim 結果，就用它！
-                            // 如果完全沒抓到，onend 會處理
+                            // 忽略 no-speech，交給 onend 處理
                             return;
                         }
-
-                        let msg = "錄音失敗";
-                        if(event.error === 'not-allowed') msg = "請允許權限";
-                        if(event.error === 'network') msg = "網路錯誤";
-
-                        this.resetMicUI(msg);
+                        
+                        let msg = "錄音錯誤";
+                        if(event.error === 'not-allowed') msg = "麥克風權限被拒絕";
+                        if(event.error === 'network') msg = "網路連線不穩";
+                        
+                        this.updateStatus(msg);
                         this.isRecording = false;
-                    };
-                    
-                    this.recognition.onend = () => {
-                         this.isRecording = false;
-                         document.getElementById('mic-btn').classList.remove('listening');
-                         document.getElementById('spectrum-visual').style.display = 'none';
-
-                         // 錄音結束，送出我們抓到的最佳字串 (可能是 Final 也可能是 Interim)
-                         // 就算 bestTranscript 是空字串，也會被 processAnalysis 判定為錯誤
-                         this.processAnalysis(this.bestTranscript);
+                        document.getElementById('mic-btn').classList.remove('listening');
+                        document.getElementById('spectrum-visual').style.display = 'none';
                     };
 
                 } else {
                     alert("您的瀏覽器不支援語音辨識，請使用 Google Chrome。");
                 }
+            },
+
+            updateStatus: function(msg) {
+                document.getElementById('status-log').innerText = msg;
             },
 
             shuffle: function(array) {
@@ -552,7 +528,6 @@
                 let pool = [...database];
                 this.shuffle(pool);
                 let count = this.settings.count === 'all' ? pool.length : parseInt(this.settings.count);
-                
                 this.queue = [];
                 while(this.queue.length < count) {
                     let batch = [...pool];
@@ -561,7 +536,6 @@
                         if(this.queue.length < count) this.queue.push(item);
                     }
                 }
-
                 this.currentIndex = 0;
                 this.switchScreen('game');
                 this.renderQuestion();
@@ -582,12 +556,11 @@
                 resultBox.style.display = 'none';
                 resultBox.classList.remove('show');
                 document.getElementById('answer-text').style.display = 'none';
-                document.getElementById('recognized-text').innerText = ""; 
                 document.getElementById('next-btn').disabled = true;
                 document.getElementById('next-btn').style.backgroundColor = '';
                 document.getElementById('next-btn').style.color = '';
-                document.getElementById('mic-status').innerText = "點擊錄音 (5秒)";
                 document.getElementById('spectrum-visual').style.display = 'none';
+                this.updateStatus("準備就緒");
 
                 displayText.innerHTML = this.settings.mode === 'hanji' ? item.hanji : item.lomaji;
                 
@@ -619,45 +592,38 @@
 
                 document.getElementById('result-feedback').style.display = 'none';
                 document.getElementById('answer-text').style.display = 'none';
-                document.getElementById('recognized-text').innerText = "";
-
+                
                 this.isRecording = true;
-                this.bestTranscript = ""; // 重置最佳結果
-                
-                const btn = document.getElementById('mic-btn');
-                const status = document.getElementById('mic-status');
-                const spectrum = document.getElementById('spectrum-visual');
-                
-                btn.classList.add('listening');
-                status.innerText = "聆聽中...";
-                spectrum.style.display = 'flex'; 
+                this.finalTranscript = ""; // 重置結果
+                this.updateStatus("正在啟動麥克風...");
                 
                 try {
                     this.recognition.start();
-                } catch(e) { console.log("Recognition started"); }
+                } catch(e) {
+                    console.warn("Recognition start error", e);
+                    this.isRecording = false;
+                }
 
+                // 8秒後強制停止 (延長時間，給伺服器更多緩衝)
                 this.recognitionTimeout = setTimeout(() => {
                     if(this.isRecording) {
+                        this.updateStatus("時間到，處理中...");
                         try { this.recognition.stop(); } catch(e) {}
                     }
-                }, 5000);
+                }, 8000);
             },
 
             processAnalysis: function(transcript) {
-                if(this.recognitionTimeout) clearTimeout(this.recognitionTimeout);
-
                 const btn = document.getElementById('mic-btn');
-                const status = document.getElementById('mic-status');
-                const spectrum = document.getElementById('spectrum-visual');
+                const status = document.getElementById('status-log');
                 
                 btn.classList.remove('listening');
                 btn.classList.add('processing');
-                status.innerText = "比對中...";
-                spectrum.style.display = 'none'; 
+                this.updateStatus(`辨識到：${transcript.substring(0, 10)}...`);
 
                 setTimeout(() => {
                     btn.classList.remove('processing');
-                    status.innerText = "完成";
+                    this.updateStatus("比對完成");
                     this.checkAnswer(transcript);
                 }, 500);
             },
@@ -666,9 +632,6 @@
                 const currentItem = this.queue[this.currentIndex];
                 const targetText = this.settings.mode === 'hanji' ? currentItem.hanji : currentItem.lomaji;
                 
-                const displayTranscript = transcript || "(未偵測到語音，請靠近麥克風)";
-                document.getElementById('recognized-text').innerText = `電腦聽到：${displayTranscript}`;
-
                 const cleanInput = transcript.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()。，、？ ]/g,"").toLowerCase();
                 const cleanTarget = targetText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()。，、？ ]/g,"").toLowerCase();
 
@@ -684,6 +647,7 @@
 
                 let status = 'wrong';
 
+                // 20% 正確率門檻
                 if (accuracy >= 0.2) {
                     status = 'correct';
                 } else {
@@ -692,20 +656,10 @@
 
                 if(transcript.includes("測試正確")) status = 'correct';
 
-                this.showResult(status, targetText);
+                this.showResult(status, targetText, transcript);
             },
 
-            resetMicUI: function(msg) {
-                const btn = document.getElementById('mic-btn');
-                const status = document.getElementById('mic-status');
-                const spectrum = document.getElementById('spectrum-visual');
-                btn.classList.remove('listening');
-                btn.classList.remove('processing');
-                spectrum.style.display = 'none';
-                status.innerText = msg;
-            },
-
-            showResult: function(status, targetText) {
+            showResult: function(status, targetText, userSaid) {
                 const resultBox = document.getElementById('result-feedback');
                 const answerTextDiv = document.getElementById('answer-text');
                 const nextBtn = document.getElementById('next-btn');
@@ -715,7 +669,6 @@
                 resultBox.classList.add('show');
                 
                 answerTextDiv.style.display = 'block';
-
                 resultBox.className = 'result-box show';
 
                 let displayHTML = "";
@@ -729,6 +682,9 @@
                     resultBox.innerHTML = "毋著！你閣試一擺！";
                     displayHTML = `<span class="char-wrong">${targetText}</span>`;
                 }
+                
+                // 顯示使用者說了什麼 (除錯用)
+                // displayHTML += `<div style="font-size:0.8rem; color:#999; margin-top:5px;">(你說: ${userSaid})</div>`;
 
                 answerTextDiv.innerHTML = displayHTML;
 
