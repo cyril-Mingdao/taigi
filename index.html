@@ -200,6 +200,7 @@
         .result-box.show { display: flex; }
         .result-correct { background-color: #d7ffb8; color: #58a700; border: 2px solid #58a700; }
         .result-wrong { background-color: #ffdfe0; color: #ea2b2b; border: 2px solid #ea2b2b; }
+        .result-partial { background-color: #fff4cc; color: #dcb208; border: 2px solid #dcb208; }
 
         .answer-display {
             width: 100%;
@@ -282,7 +283,7 @@
             100% { transform: rotate(360deg); border-bottom-color: var(--duo-yellow-shadow); }
         }
 
-        /* CSS 模擬音譜 (不使用 JS 音頻分析，避免 Android 衝突) */
+        /* CSS 模擬音譜 */
         .spectrum-container {
             display: none;
             height: 30px;
@@ -307,6 +308,7 @@
             50% { height: 25px; }
         }
 
+        /* 關鍵字元顏色 */
         .char-correct { color: var(--duo-green); }
         .char-wrong { color: var(--duo-red); }
     </style>
@@ -433,7 +435,7 @@
                 if (SpeechRecognition) {
                     this.recognition = new SpeechRecognition();
                     this.recognition.continuous = false;
-                    this.recognition.interimResults = true; // 必須啟用以捕捉片段
+                    this.recognition.interimResults = true;
                     this.recognition.lang = 'cmn-Hant-TW'; 
                     
                     this.recognition.onresult = (event) => {
@@ -446,7 +448,6 @@
                                 interim += event.results[i][0].transcript;
                             }
                         }
-                        // 更新最佳結果，但不顯示在畫面上
                         this.bestTranscript = final || interim || this.bestTranscript;
                     };
 
@@ -558,7 +559,7 @@
                 document.getElementById('answer-text').style.display = 'none';
 
                 this.isRecording = true;
-                this.bestTranscript = ""; // 重置
+                this.bestTranscript = ""; 
                 
                 const btn = document.getElementById('mic-btn');
                 const status = document.getElementById('mic-status');
@@ -598,7 +599,6 @@
                 }, 500);
             },
 
-            // Levenshtein Distance 演算法
             calculateSimilarity: function(s1, s2) {
                 if (s1.length === 0) return s2.length === 0 ? 1.0 : 0.0;
                 if (s2.length === 0) return 0.0;
@@ -630,26 +630,29 @@
                 const currentItem = this.queue[this.currentIndex];
                 const targetText = this.settings.mode === 'hanji' ? currentItem.hanji : currentItem.lomaji;
                 
-                // 不再顯示 transcript 到介面上，只做內部比對
+                // 清理輸入文字 (移除標點, 空白, 轉小寫)
                 const cleanInput = transcript.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()。，、？ ]/g,"").toLowerCase();
                 const cleanTarget = targetText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()。，、？ ]/g,"").toLowerCase();
 
-                // 使用雷文斯泰因距離計算相似度
+                // 計算相似度
                 const similarityScore = this.calculateSimilarity(cleanInput, cleanTarget);
-                console.log("Score:", similarityScore);
+                console.log(`Score: ${similarityScore.toFixed(2)} (In: ${cleanInput} | Tgt: ${cleanTarget})`);
 
                 let status = 'wrong';
 
-                // 40% 相似度門檻
-                if (similarityScore >= 0.4) {
+                // 三段式判定 (60% / 20%)
+                if (similarityScore >= 0.6) {
                     status = 'correct';
+                } else if (similarityScore >= 0.2) {
+                    status = 'partial';
                 } else {
                     status = 'wrong';
                 }
 
+                // 強制後門
                 if(transcript.includes("測試正確")) status = 'correct';
 
-                this.showResult(status, targetText);
+                this.showResult(status, targetText, transcript);
             },
 
             resetMicUI: function(msg) {
@@ -662,7 +665,7 @@
                 status.innerText = msg;
             },
 
-            showResult: function(status, targetText) {
+            showResult: function(status, targetText, transcript) {
                 const resultBox = document.getElementById('result-feedback');
                 const answerTextDiv = document.getElementById('answer-text');
                 const nextBtn = document.getElementById('next-btn');
@@ -676,10 +679,28 @@
 
                 let displayHTML = "";
 
+                // 檢查使用者的語音輸入 (transcript) 是否包含目標字元，用於變色邏輯
+                const cleanTranscript = transcript.toLowerCase();
+
                 if (status === 'correct') {
                     resultBox.classList.add('result-correct');
                     resultBox.innerHTML = "正確！共你拍噗仔！";
                     displayHTML = `<span class="char-correct">${targetText}</span>`;
+                } else if (status === 'partial') {
+                    resultBox.classList.add('result-partial');
+                    resultBox.innerHTML = "部份毋著，閣一改！";
+                    
+                    // 智慧變色：檢查每個字是否出現在辨識結果中
+                    for(let char of targetText) {
+                        // 忽略標點符號和空格的比對
+                        if (/[.,\/#!$%\^&\*;:{}=\-_`~()。，、？ ]/.test(char)) {
+                            displayHTML += `<span>${char}</span>`;
+                        } else if (cleanTranscript.includes(char.toLowerCase())) {
+                            displayHTML += `<span class="char-correct">${char}</span>`;
+                        } else {
+                            displayHTML += `<span class="char-wrong">${char}</span>`;
+                        }
+                    }
                 } else {
                     resultBox.classList.add('result-wrong');
                     resultBox.innerHTML = "毋著！你閣試一擺！";
