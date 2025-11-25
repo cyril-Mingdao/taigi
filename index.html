@@ -216,15 +216,6 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-        .recognized-text {
-            font-size: 0.8rem;
-            color: #888;
-            margin: 2px 0;
-            min-height: 1rem;
-            font-style: italic;
-            flex-shrink: 0;
-        }
-
         .controls-footer {
             flex-shrink: 0;
             background: #fff;
@@ -291,7 +282,7 @@
             100% { transform: rotate(360deg); border-bottom-color: var(--duo-yellow-shadow); }
         }
 
-        /* 音譜特效 */
+        /* CSS 模擬音譜 (不使用 JS 音頻分析，避免 Android 衝突) */
         .spectrum-container {
             display: none;
             height: 30px;
@@ -369,8 +360,6 @@
                     <div class="spectrum-bar"></div>
                 </div>
 
-                <div class="recognized-text" id="recognized-text"></div>
-
                 <div class="result-box" id="result-feedback"></div>
                 <div class="answer-display" id="answer-text"></div>
             </div>
@@ -445,7 +434,7 @@
                     this.recognition = new SpeechRecognition();
                     this.recognition.continuous = false;
                     this.recognition.interimResults = true; // 必須啟用以捕捉片段
-                    this.recognition.lang = 'cmn-Hant-TW'; // 繁中引擎
+                    this.recognition.lang = 'cmn-Hant-TW'; 
                     
                     this.recognition.onresult = (event) => {
                         let interim = '';
@@ -457,7 +446,7 @@
                                 interim += event.results[i][0].transcript;
                             }
                         }
-                        // 只要有抓到字，就更新最佳結果
+                        // 更新最佳結果，但不顯示在畫面上
                         this.bestTranscript = final || interim || this.bestTranscript;
                     };
 
@@ -466,9 +455,8 @@
                     };
 
                     this.recognition.onerror = (event) => {
-                        console.error("Speech error:", event.error);
                         if(this.recognitionTimeout) clearTimeout(this.recognitionTimeout);
-                        if (event.error === 'no-speech') return; // 交給 onend
+                        if (event.error === 'no-speech') return; 
 
                         let msg = "錄音失敗";
                         if(event.error === 'not-allowed') msg = "請允許權限";
@@ -482,8 +470,6 @@
                          this.isRecording = false;
                          document.getElementById('mic-btn').classList.remove('listening');
                          document.getElementById('spectrum-visual').style.display = 'none';
-                         
-                         // 不管有沒有報錯，只要結束了就拿 bestTranscript 來比對
                          this.processAnalysis(this.bestTranscript);
                     };
 
@@ -534,7 +520,6 @@
                 resultBox.style.display = 'none';
                 resultBox.classList.remove('show');
                 document.getElementById('answer-text').style.display = 'none';
-                document.getElementById('recognized-text').innerText = ""; 
                 document.getElementById('next-btn').disabled = true;
                 document.getElementById('next-btn').style.backgroundColor = '';
                 document.getElementById('next-btn').style.color = '';
@@ -571,10 +556,9 @@
 
                 document.getElementById('result-feedback').style.display = 'none';
                 document.getElementById('answer-text').style.display = 'none';
-                document.getElementById('recognized-text').innerText = "";
 
                 this.isRecording = true;
-                this.bestTranscript = ""; // 清空暫存
+                this.bestTranscript = ""; // 重置
                 
                 const btn = document.getElementById('mic-btn');
                 const status = document.getElementById('mic-status');
@@ -614,9 +598,7 @@
                 }, 500);
             },
 
-            // ==========================================
-            // 核心演算法：雷文斯泰因距離 (Levenshtein Distance)
-            // ==========================================
+            // Levenshtein Distance 演算法
             calculateSimilarity: function(s1, s2) {
                 if (s1.length === 0) return s2.length === 0 ? 1.0 : 0.0;
                 if (s2.length === 0) return 0.0;
@@ -625,30 +607,22 @@
                 const len2 = s2.length;
                 const matrix = [];
 
-                // 初始化矩陣
-                for (let i = 0; i <= len1; i++) {
-                    matrix[i] = [i];
-                }
-                for (let j = 0; j <= len2; j++) {
-                    matrix[0][j] = j;
-                }
+                for (let i = 0; i <= len1; i++) { matrix[i] = [i]; }
+                for (let j = 0; j <= len2; j++) { matrix[0][j] = j; }
 
-                // 計算距離
                 for (let i = 1; i <= len1; i++) {
                     for (let j = 1; j <= len2; j++) {
                         const cost = s1[i - 1] === s2[j - 1] ? 0 : 1;
                         matrix[i][j] = Math.min(
-                            matrix[i - 1][j] + 1,       // 刪除
-                            matrix[i][j - 1] + 1,       // 插入
-                            matrix[i - 1][j - 1] + cost // 替換
+                            matrix[i - 1][j] + 1,       
+                            matrix[i][j - 1] + 1,       
+                            matrix[i - 1][j - 1] + cost 
                         );
                     }
                 }
 
                 const distance = matrix[len1][len2];
                 const maxLength = Math.max(len1, len2);
-                
-                // 回傳相似度 (0.0 ~ 1.0)
                 return 1.0 - (distance / maxLength);
             },
 
@@ -656,28 +630,23 @@
                 const currentItem = this.queue[this.currentIndex];
                 const targetText = this.settings.mode === 'hanji' ? currentItem.hanji : currentItem.lomaji;
                 
-                const displayTranscript = transcript || "(未偵測到語音)";
-                document.getElementById('recognized-text').innerText = `電腦聽到：${displayTranscript}`;
-
-                // 1. 清理字串 (轉小寫、去標點、去空白)
+                // 不再顯示 transcript 到介面上，只做內部比對
                 const cleanInput = transcript.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()。，、？ ]/g,"").toLowerCase();
                 const cleanTarget = targetText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()。，、？ ]/g,"").toLowerCase();
 
-                // 2. 使用演算法計算相似度
+                // 使用雷文斯泰因距離計算相似度
                 const similarityScore = this.calculateSimilarity(cleanInput, cleanTarget);
-                
-                console.log(`Input: ${cleanInput}, Target: ${cleanTarget}, Score: ${similarityScore.toFixed(2)}`);
+                console.log("Score:", similarityScore);
 
                 let status = 'wrong';
 
-                // 50% 相似度門檻
-                if (similarityScore >= 0.5) {
+                // 40% 相似度門檻
+                if (similarityScore >= 0.4) {
                     status = 'correct';
                 } else {
                     status = 'wrong';
                 }
 
-                // 測試後門
                 if(transcript.includes("測試正確")) status = 'correct';
 
                 this.showResult(status, targetText);
