@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>進階口說練習 - 教育部台語俗諺</title>
+    
+    <link href="https://tauhu.tw/tauhu-oo.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-main: 'tauhu-oo', sans-serif;
+            --duo-green: #58cc02;
+            --duo-green-shadow: #58a700;
+            --duo-red: #ff4b4b;
+            --duo-red-shadow: #ea2b2b;
+            --duo-blue: #1cb0f6;
+            --duo-blue-shadow: #1899d6;
+            --duo-yellow: #ffc800;
+            --duo-yellow-shadow: #e5b400;
+            --duo-gray: #e5e5e5;
+            --duo-text: #4b4b4b;
+            --bg-start: #FFDEE9;
+            --bg-end: #B5FFFC;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-main);
+            background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+            height: 100vh; 
+            height: 100dvh; /* 確保手機滿版 */
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--duo-text);
+        }
+
+        #app-container {
+            width: 96%;
+            max-width: 800px;
+            height: 96vh;
+            height: 96dvh;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            #app-container {
+                width: 100%;
+                height: 100%;
+                border-radius: 0;
+                padding: 10px;
+                box-shadow: none;
+            }
+            h2 { display: none; }
+            header { margin-bottom: 5px !important; padding-bottom: 5px !important; }
+            h1 { font-size: 1.1rem !important; }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 5px;
+            flex-shrink: 0;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 5px;
+        }
+
+        h1 { font-size: 1.2rem; margin: 0; color: var(--duo-blue-shadow); }
+        h2 { font-size: 0.8rem; margin: 0; color: #888; font-weight: normal; }
+
+        #menu-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            gap: 15px;
+        }
+
+        .control-group { width: 100%; text-align: center; }
+        .control-label { font-size: 1rem; margin-bottom: 8px; display: block; font-weight: bold; }
+        .btn-group { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+
+        .btn {
+            background-color: white;
+            border: 2px solid var(--duo-gray);
+            border-bottom: 4px solid var(--duo-gray);
+            color: var(--duo-text);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.1s;
+            outline: none;
+        }
+
+        .btn:active, .btn.active {
+            background-color: var(--duo-blue);
+            border-color: var(--duo-blue-shadow);
+            color: white;
+            border-bottom-width: 2px;
+            transform: translateY(2px);
+        }
+
+        .btn-start {
+            background-color: var(--duo-green);
+            border-color: var(--duo-green-shadow);
+            color: white;
+            font-size: 1.1rem;
+            padding: 12px 30px;
+            margin-top: 15px;
+        }
+
+        #game-screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            color: #999;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .question-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+            text-align: center;
+            overflow: hidden;
+            padding: 5px 0;
+            min-height: 0;
+        }
+
+        .question-text {
+            font-weight: bold;
+            color: var(--duo-text);
+            line-height: 1.2;
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        .definition {
+            font-size: 0.9rem;
+            color: #666;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 10px;
+            width: 100%;
+            line-height: 1.4;
+            max-height: 35%;
+            overflow-y: auto;
+            flex-shrink: 1;
+        }
+        .definition::-webkit-scrollbar { display: none; }
+
+        .result-box {
+            width: 100%;
+            text-align: center;
+            padding: 8px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            gap: 2px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+        .result-box.show { display: flex; }
+        .result-correct { background-color: #d7ffb8; color: #58a700; border: 2px solid #58a700; }
+        .result-wrong { background-color: #ffdfe0; color: #ea2b2b; border: 2px solid #ea2b2b; }
+
+        .answer-display {
+            width: 100%;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 5px;
+            padding: 5px;
+            background: #fff;
+            border-radius: 10px;
+            display: none;
+            line-height: 1.2;
+            flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .recognized-text {
+            font-size: 0.8rem;
+            color: #888;
+            margin: 2px 0;
+            min-height: 1rem;
+            font-style: italic;
+            flex-shrink: 0;
+        }
+
+        .controls-footer {
+            flex-shrink: 0;
+            background: #fff;
+            border-top: 1px solid #eee;
+            padding-top: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            padding-bottom: 5px;
+        }
+
+        .mic-status-text { font-size: 0.75rem; color: #999; height: 1em; }
+
+        .controls-row {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .center-controls { display: flex; align-items: center; gap: 15px; }
+
+        .nav-btn { font-size: 0.9rem; padding: 8px 12px; min-width: 60px; }
+
+        .audio-btn {
+            background-color: var(--duo-blue);
+            border-color: var(--duo-blue-shadow);
+            color: white;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mic-btn {
+            background-color: white;
+            border: 2px solid var(--duo-gray);
+            border-bottom: 4px solid var(--duo-gray);
+            border-radius: 50%;
+            width: 65px;
+            height: 65px;
+            font-size: 28px;
+            color: var(--duo-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .mic-btn.listening { border-color: var(--duo-red); color: var(--duo-red); animation: pulse 1.5s infinite; }
+        .mic-btn.processing { border-color: var(--duo-yellow); color: var(--duo-yellow); animation: spin 1s infinite linear; }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 75, 75, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 75, 75, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 75, 75, 0); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); border-bottom-color: var(--duo-yellow-shadow); }
+            100% { transform: rotate(360deg); border-bottom-color: var(--duo-yellow-shadow); }
+        }
+
+        .spectrum-container {
+            display: none;
+            height: 30px;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 3px;
+            margin: 5px 0;
+            flex-shrink: 0;
+        }
+        .spectrum-bar {
+            width: 4px;
+            height: 5px;
+            background-color: var(--duo-blue);
+            border-radius: 2px;
+            animation: spectrum-bounce 0.5s infinite ease-in-out;
+        }
+        .spectrum-bar:nth-child(odd) { animation-duration: 0.4s; }
+        .spectrum-bar:nth-child(even) { animation-duration: 0.6s; }
+
+        @keyframes spectrum-bounce {
+            0%, 100% { height: 5px; }
+            50% { height: 25px; }
+        }
+
+        .char-correct { color: var(--duo-green); }
+        .char-wrong { color: var(--duo-red); }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <header>
+            <h1>進階口說練習</h1>
+            <h2>教育部台語俗諺</h2>
+        </header>
+
+        <div id="menu-screen">
+            <div class="control-group">
+                <span class="control-label">遊戲模式</span>
+                <div class="btn-group" id="mode-select">
+                    <button class="btn active" data-mode="hanji">台語漢字</button>
+                    <button class="btn" data-mode="lomaji">羅馬拼音</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <span class="control-label">測驗數量</span>
+                <div class="btn-group" id="count-select">
+                    <button class="btn active" data-count="5">5</button>
+                    <button class="btn" data-count="7">7</button>
+                    <button class="btn" data-count="9">9</button>
+                    <button class="btn" data-count="11">11</button>
+                    <button class="btn" data-count="13">13</button>
+                    <button class="btn" data-count="all">全部</button>
+                </div>
+            </div>
+
+            <button class="btn btn-start" onclick="game.start()">開始挑戰</button>
+        </div>
+
+        <div id="game-screen">
+            <div class="status-bar">
+                <span id="progress-text">序號 1 / 5</span>
+                <button class="btn nav-btn" style="padding: 4px 8px; font-size: 0.8rem;" onclick="game.backToMenu()">退出</button>
+            </div>
+
+            <div class="question-content">
+                <div class="question-text" id="display-text"></div>
+                
+                <div class="definition" id="definition-text"></div>
+                
+                <div class="spectrum-container" id="spectrum-visual">
+                    <div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div>
+                    <div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div>
+                    <div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div>
+                    <div class="spectrum-bar"></div>
+                </div>
+
+                <div class="recognized-text" id="recognized-text"></div>
+
+                <div class="result-box" id="result-feedback"></div>
+
+                <div class="answer-display" id="answer-text"></div>
+            </div>
+
+            <div class="controls-footer">
+                <div class="mic-status-text" id="mic-status">點擊錄音 (5秒)</div>
+                
+                <div class="controls-row">
+                    <button class="btn nav-btn" onclick="game.goBack()">重洗</button>
+                    
+                    <div class="center-controls">
+                        <button class="btn audio-btn" onclick="game.playAudio()">🔊</button>
+                        <button class="btn mic-btn" id="mic-btn" onclick="game.recordVoice()">🎤</button>
+                    </div>
+                    
+                    <button class="btn nav-btn" id="next-btn" onclick="game.nextQuestion()" disabled>下一題</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="question-audio"></audio>
+
+    <script>
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.onselectstart = function() { return false; };
+
+        const database = [
+            {
+                id: 1,
+                hanji: "鴨仔聽雷",
+                lomaji: "Ah-á thiann luî",
+                mean: "指鴨子聽到雷聲，並不知道是怎麼回事。比喻一個人對所接收的訊息無法理解。",
+                audio: "https://sutian.moe.edu.tw/media/senn/mp3/imtong/39/IR/272041.mp3"
+            },
+            {
+                id: 2,
+                hanji: "愛拚才會贏",
+                lomaji: "Ài piànn tsiah ē iânn",
+                mean: "要努力才會贏。比喻唯有努力奮鬥，才能克服困難，成就一番事業。",
+                audio: "https://sutian.moe.edu.tw/media/senn/mp3/imtong/Yx/s7/271611.mp3"
+            },
+            {
+                id: 3,
+                hanji: "愛媠毋驚流鼻水",
+                lomaji: "Ài-suí m̄ kiann lâu phīnn-tsuí",
+                mean: "為了展示自己姣好的身材，天氣再冷，寧可挨寒受凍，也不願多穿衣服。常用以揶揄女性愛美，寧可付出代價，也在所不惜。",
+                audio: "https://sutian.moe.edu.tw/media/senn/mp3/imtong/4v/iB/271621.mp3"
+            },
+            {
+                id: 4,
+                hanji: "暗頓減食一口，活甲九十九",
+                lomaji: "Àm-tǹg kiám tsia̍h tsi̍t kháu, ua̍h kah káu-tsa̍p-káu",
+                mean: "晚餐少吃一口，活到九十九。說明晚餐的食用量少一點，有益身體健康。",
+                audio: "https://sutian.moe.edu.tw/media/senn/mp3/imtong/Gj/cz/271641.mp3"
+            },
+            {
+                id: 5,
+                hanji: "翁仔某是相欠債",
+                lomaji: "Ang-á-bóo sī sio-khiàm-tsè",
+                mean: "今世有緣結為夫妻，乃因前世因果，互相欠債所致。勸雙方姻緣前定，應以和為貴。",
+                audio: "https://sutian.moe.edu.tw/media/senn/mp3/imtong/s4/HC/270931.mp3"
+            }
+        ];
+
+        const game = {
+            settings: { mode: 'hanji', count: 5 },
+            queue: [],
+            currentIndex: 0,
+            audioElement: document.getElementById('question-audio'),
+            recognition: null,
+            isRecording: false,
+            
+            // 儲存最佳辨識結果 (包含 Interim 結果)
+            bestTranscript: "", 
+            recognitionTimeout: null,
+
+            init: function() {
+                this.setupMenu();
+                this.setupSpeechRecognition();
+            },
+
+            setupMenu: function() {
+                document.getElementById('mode-select').addEventListener('click', (e) => {
+                    if(e.target.tagName === 'BUTTON') {
+                        document.querySelectorAll('#mode-select .btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.settings.mode = e.target.dataset.mode;
+                    }
+                });
+
+                document.getElementById('count-select').addEventListener('click', (e) => {
+                    if(e.target.tagName === 'BUTTON') {
+                        document.querySelectorAll('#count-select .btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.settings.count = e.target.dataset.count;
+                    }
+                });
+            },
+
+            setupSpeechRecognition: function() {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (SpeechRecognition) {
+                    this.recognition = new SpeechRecognition();
+                    this.recognition.continuous = false;
+                    
+                    // 關鍵修正：啟用 interimResults 抓取不完整的語音片段
+                    this.recognition.interimResults = true; 
+                    this.recognition.lang = 'cmn-Hant-TW'; 
+                    
+                    this.recognition.onresult = (event) => {
+                        // 這裡我們不斷更新 "目前聽到最好的結果"
+                        // 因為 Android 有時不會發送 isFinal=true 的結果就斷線
+                        let interimTranscript = '';
+                        let finalTranscript = '';
+
+                        for (let i = event.resultIndex; i < event.results.length; ++i) {
+                            if (event.results[i].isFinal) {
+                                finalTranscript += event.results[i][0].transcript;
+                            } else {
+                                interimTranscript += event.results[i][0].transcript;
+                            }
+                        }
+                        
+                        // 優先使用 Final，沒有的話使用 Interim
+                        // 這樣即使是半句話，我們也先存起來
+                        this.bestTranscript = finalTranscript || interimTranscript;
+                        console.log("Captured:", this.bestTranscript);
+                    };
+
+                    this.recognition.onspeechend = () => {
+                        try { this.recognition.stop(); } catch(e) {}
+                    };
+
+                    this.recognition.onerror = (event) => {
+                        console.error("Speech error:", event.error);
+                        if(this.recognitionTimeout) clearTimeout(this.recognitionTimeout);
+                        
+                        if (event.error === 'no-speech') {
+                            // no-speech 錯誤時，如果我們之前有抓到 interim 結果，就用它！
+                            // 如果完全沒抓到，onend 會處理
+                            return;
+                        }
+
+                        let msg = "錄音失敗";
+                        if(event.error === 'not-allowed') msg = "請允許權限";
+                        if(event.error === 'network') msg = "網路錯誤";
+
+                        this.resetMicUI(msg);
+                        this.isRecording = false;
+                    };
+                    
+                    this.recognition.onend = () => {
+                         this.isRecording = false;
+                         document.getElementById('mic-btn').classList.remove('listening');
+                         document.getElementById('spectrum-visual').style.display = 'none';
+
+                         // 錄音結束，送出我們抓到的最佳字串 (可能是 Final 也可能是 Interim)
+                         // 就算 bestTranscript 是空字串，也會被 processAnalysis 判定為錯誤
+                         this.processAnalysis(this.bestTranscript);
+                    };
+
+                } else {
+                    alert("您的瀏覽器不支援語音辨識，請使用 Google Chrome。");
+                }
+            },
+
+            shuffle: function(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            },
+
+            start: function() {
+                let pool = [...database];
+                this.shuffle(pool);
+                let count = this.settings.count === 'all' ? pool.length : parseInt(this.settings.count);
+                
+                this.queue = [];
+                while(this.queue.length < count) {
+                    let batch = [...pool];
+                    this.shuffle(batch);
+                    for(let item of batch) {
+                        if(this.queue.length < count) this.queue.push(item);
+                    }
+                }
+
+                this.currentIndex = 0;
+                this.switchScreen('game');
+                this.renderQuestion();
+            },
+
+            switchScreen: function(screenName) {
+                document.getElementById('menu-screen').style.display = screenName === 'menu' ? 'flex' : 'none';
+                document.getElementById('game-screen').style.display = screenName === 'game' ? 'flex' : 'none';
+            },
+
+            renderQuestion: function() {
+                const item = this.queue[this.currentIndex];
+                const displayText = document.getElementById('display-text');
+                const defText = document.getElementById('definition-text');
+                const progressText = document.getElementById('progress-text');
+                const resultBox = document.getElementById('result-feedback');
+                
+                resultBox.style.display = 'none';
+                resultBox.classList.remove('show');
+                document.getElementById('answer-text').style.display = 'none';
+                document.getElementById('recognized-text').innerText = ""; 
+                document.getElementById('next-btn').disabled = true;
+                document.getElementById('next-btn').style.backgroundColor = '';
+                document.getElementById('next-btn').style.color = '';
+                document.getElementById('mic-status').innerText = "點擊錄音 (5秒)";
+                document.getElementById('spectrum-visual').style.display = 'none';
+
+                displayText.innerHTML = this.settings.mode === 'hanji' ? item.hanji : item.lomaji;
+                
+                const len = displayText.innerHTML.length;
+                if(window.innerWidth < 480) {
+                    if(len > 12) displayText.style.fontSize = '1.4rem';
+                    else if(len > 8) displayText.style.fontSize = '1.6rem';
+                    else displayText.style.fontSize = '2rem';
+                } else {
+                    if(len > 15) displayText.style.fontSize = '1.3rem';
+                    else if(len > 8) displayText.style.fontSize = '1.8rem';
+                    else displayText.style.fontSize = '2.2rem';
+                }
+
+                defText.innerText = item.mean;
+                progressText.innerText = `序號 ${this.currentIndex + 1} / ${this.queue.length}`;
+
+                this.audioElement.src = item.audio;
+                this.audioElement.load(); 
+            },
+
+            playAudio: function() {
+                this.audioElement.play();
+            },
+
+            recordVoice: function() {
+                if(this.isRecording) return;
+                if(!this.recognition) return;
+
+                document.getElementById('result-feedback').style.display = 'none';
+                document.getElementById('answer-text').style.display = 'none';
+                document.getElementById('recognized-text').innerText = "";
+
+                this.isRecording = true;
+                this.bestTranscript = ""; // 重置最佳結果
+                
+                const btn = document.getElementById('mic-btn');
+                const status = document.getElementById('mic-status');
+                const spectrum = document.getElementById('spectrum-visual');
+                
+                btn.classList.add('listening');
+                status.innerText = "聆聽中...";
+                spectrum.style.display = 'flex'; 
+                
+                try {
+                    this.recognition.start();
+                } catch(e) { console.log("Recognition started"); }
+
+                this.recognitionTimeout = setTimeout(() => {
+                    if(this.isRecording) {
+                        try { this.recognition.stop(); } catch(e) {}
+                    }
+                }, 5000);
+            },
+
+            processAnalysis: function(transcript) {
+                if(this.recognitionTimeout) clearTimeout(this.recognitionTimeout);
+
+                const btn = document.getElementById('mic-btn');
+                const status = document.getElementById('mic-status');
+                const spectrum = document.getElementById('spectrum-visual');
+                
+                btn.classList.remove('listening');
+                btn.classList.add('processing');
+                status.innerText = "比對中...";
+                spectrum.style.display = 'none'; 
+
+                setTimeout(() => {
+                    btn.classList.remove('processing');
+                    status.innerText = "完成";
+                    this.checkAnswer(transcript);
+                }, 500);
+            },
+
+            checkAnswer: function(transcript) {
+                const currentItem = this.queue[this.currentIndex];
+                const targetText = this.settings.mode === 'hanji' ? currentItem.hanji : currentItem.lomaji;
+                
+                const displayTranscript = transcript || "(未偵測到語音，請靠近麥克風)";
+                document.getElementById('recognized-text').innerText = `電腦聽到：${displayTranscript}`;
+
+                const cleanInput = transcript.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()。，、？ ]/g,"").toLowerCase();
+                const cleanTarget = targetText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()。，、？ ]/g,"").toLowerCase();
+
+                let matchCount = 0;
+                const targetArr = cleanTarget.split('');
+                
+                targetArr.forEach(char => {
+                    if(cleanInput.includes(char)) matchCount++;
+                });
+
+                let accuracy = matchCount / targetArr.length;
+                if(cleanInput.length > 0 && accuracy === 0) accuracy = 0.1;
+
+                let status = 'wrong';
+
+                if (accuracy >= 0.2) {
+                    status = 'correct';
+                } else {
+                    status = 'wrong';
+                }
+
+                if(transcript.includes("測試正確")) status = 'correct';
+
+                this.showResult(status, targetText);
+            },
+
+            resetMicUI: function(msg) {
+                const btn = document.getElementById('mic-btn');
+                const status = document.getElementById('mic-status');
+                const spectrum = document.getElementById('spectrum-visual');
+                btn.classList.remove('listening');
+                btn.classList.remove('processing');
+                spectrum.style.display = 'none';
+                status.innerText = msg;
+            },
+
+            showResult: function(status, targetText) {
+                const resultBox = document.getElementById('result-feedback');
+                const answerTextDiv = document.getElementById('answer-text');
+                const nextBtn = document.getElementById('next-btn');
+
+                resultBox.style.display = 'flex';
+                void resultBox.offsetWidth;
+                resultBox.classList.add('show');
+                
+                answerTextDiv.style.display = 'block';
+
+                resultBox.className = 'result-box show';
+
+                let displayHTML = "";
+
+                if (status === 'correct') {
+                    resultBox.classList.add('result-correct');
+                    resultBox.innerHTML = "正確！共你拍噗仔！";
+                    displayHTML = `<span class="char-correct">${targetText}</span>`;
+                } else {
+                    resultBox.classList.add('result-wrong');
+                    resultBox.innerHTML = "毋著！你閣試一擺！";
+                    displayHTML = `<span class="char-wrong">${targetText}</span>`;
+                }
+
+                answerTextDiv.innerHTML = displayHTML;
+
+                nextBtn.disabled = false;
+                nextBtn.style.backgroundColor = 'var(--duo-green)';
+                nextBtn.style.color = 'white';
+                nextBtn.style.borderBottom = '4px solid var(--duo-green-shadow)';
+            },
+
+            nextQuestion: function() {
+                if(this.currentIndex < this.queue.length - 1) {
+                    this.currentIndex++;
+                    this.renderQuestion();
+                } else {
+                    alert("測驗結束！返回主選單。");
+                    this.backToMenu();
+                }
+            },
+
+            goBack: function() {
+                if(confirm("按重洗將會重新洗牌並重新開始，確定嗎？")) {
+                    this.start();
+                }
+            },
+
+            backToMenu: function() {
+                this.switchScreen('menu');
+            }
+        };
+
+        game.init();
+    </script>
+</body>
+</html>
