@@ -7,12 +7,10 @@
     <link href="https://tauhu.tw/tauhu-oo.css" rel="stylesheet">
     <style>
         :root {
-            /* 15. 字體設定 */
             --font-main: 'tauhu-oo', sans-serif;
             --color-correct: #58cc02;
             --color-wrong: #ff4b4b;
-            --color-partial: #ffc800; /* 用於邊框或背景 */
-            /* 12. 漸層背景 */
+            --color-partial: #ffc800;
             --bg-start: #a18cd1;
             --bg-end: #fbc2eb;
             --panel-bg: rgba(255, 255, 255, 0.95);
@@ -20,7 +18,6 @@
 
         * {
             box-sizing: border-box;
-            /* 10. 禁止選取文字 */
             user-select: none;
             -webkit-user-select: none;
         }
@@ -32,16 +29,13 @@
             background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
             height: 100vh;
             width: 100vw;
-            overflow: hidden; /* 13. 禁止捲動 */
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* 10. 禁止右鍵 */
-        body[oncontextmenu="return false;"] {
-            -webkit-touch-callout: none;
-        }
+        body[oncontextmenu="return false;"] { -webkit-touch-callout: none; }
 
         #app {
             width: 95%;
@@ -53,7 +47,6 @@
             justify-content: center;
         }
 
-        /* 遊戲主容器 */
         .game-container {
             width: 100%;
             background: var(--panel-bg);
@@ -63,13 +56,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between; /* 確保內容分布 */
+            justify-content: space-between;
             height: 100%;
             max-height: 700px;
             position: relative;
         }
 
-        /* 選單樣式 */
         #menu-view {
             text-align: center;
             width: 100%;
@@ -79,7 +71,6 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
         }
 
-        /* 16. 標題 */
         h1 { margin: 0 0 10px 0; color: #333; font-size: 2rem; }
         h2 { margin: 0 0 30px 0; color: #666; font-size: 1.2rem; }
 
@@ -123,7 +114,6 @@
         }
         .btn-primary:hover { background: #46a302; }
 
-        /* 03. 題目顯示表格 */
         .table-view {
             width: 100%;
             margin-bottom: 15px;
@@ -132,7 +122,7 @@
             border: 2px solid #e5e5e5;
             border-radius: 12px;
             overflow: hidden;
-            flex-grow: 1; /* 讓表格佔據空間 */
+            flex-grow: 1;
         }
 
         .table-view th, .table-view td {
@@ -143,7 +133,6 @@
         }
         .table-view th { background: #f7f7f7; width: 25%; font-weight: bold; color: #555; white-space: nowrap;}
         
-        /* 08. 自動調整文字大小：使用 clamp 或 viewport units */
         .table-view td { 
             background: #fff; 
             color: #333; 
@@ -157,7 +146,6 @@
             font-size: clamp(1.2rem, 5vw, 1.8rem) !important;
         }
 
-        /* 07. 回饋區顯示樣式 */
         .feedback-area {
             width: 100%;
             min-height: 80px;
@@ -175,41 +163,21 @@
             background: #f8f8f8;
         }
 
-        .feedback-msg {
-            font-size: 1rem;
-            margin-top: 8px;
-            color: #555;
-        }
+        .feedback-msg { font-size: 1rem; margin-top: 8px; color: #555; }
 
-        /* 狀態樣式：正確 */
-        .status-correct {
-            border-color: var(--color-correct);
-            background: #dffbea;
-        }
+        .status-correct { border-color: var(--color-correct); background: #dffbea; }
         .status-correct .result-text { color: var(--color-correct); }
         .status-correct .feedback-msg { color: var(--color-correct); }
 
-        /* 狀態樣式：錯誤 */
-        .status-wrong {
-            border-color: var(--color-wrong);
-            background: #ffdfe0;
-        }
+        .status-wrong { border-color: var(--color-wrong); background: #ffdfe0; }
         .status-wrong .result-text { color: var(--color-wrong); }
         .status-wrong .feedback-msg { color: var(--color-wrong); }
 
-        /* 狀態樣式：部分錯誤 (綠紅穿插) */
-        .status-partial {
-            border-color: #ffd900;
-            background: #fff8d6;
-        }
-        
-        /* 綠紅穿插的實現：奇數綠，偶數紅 */
+        .status-partial { border-color: #ffd900; background: #fff8d6; }
         .partial-text span:nth-child(odd) { color: var(--color-correct); }
         .partial-text span:nth-child(even) { color: var(--color-wrong); }
         .status-partial .feedback-msg { color: #d19d00; }
 
-
-        /* 控制按鈕區 */
         .controls {
             width: 100%;
             display: flex;
@@ -225,7 +193,6 @@
             align-items: center;
         }
 
-        /* 05, 06 按鈕樣式 */
         .icon-btn {
             width: 70px;
             height: 70px;
@@ -256,7 +223,6 @@
             100% { box-shadow: 0 0 0 0 rgba(255, 75, 75, 0); } 
         }
 
-        /* 14. 導航列 */
         .nav-bar {
             width: 100%;
             display: flex;
@@ -279,13 +245,15 @@
         .nav-btn:hover { background: #f9f9f9; color: #888; }
         .nav-btn:active { border-bottom-width: 2px; transform: translateY(2px); }
         
-        /* 響應式 */
         @media (max-width: 600px) {
             .table-view th { width: 30px; font-size: 0.9rem; text-align: center; }
             .table-view td { font-size: 1rem; }
             h1 { font-size: 1.5rem; }
             .icon-btn { width: 60px; height: 60px; font-size: 24px; }
         }
+        
+        /* 視覺化音量顯示 (隱藏的輔助元素，確保邏輯運作) */
+        #meter { display: none; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -362,7 +330,7 @@
 </div>
 
 <script>
-    // --- 18. 資料庫 ---
+    // --- 資料庫 ---
     const rawData = [
         {id:1, hanji:"鴨仔聽雷", tl:"Ah-á thiann luî.", meaning:"指鴨子聽到雷聲，並不知道是怎麼回事。比喻一個人對所接收的訊息無法理解。", audio:"https://sutian.moe.edu.tw/media/senn/mp3/imtong/39/IR/272041.mp3"},
         {id:2, hanji:"愛拚才會贏", tl:"Ài piànn tsiah ē iânn.", meaning:"要努力才會贏。比喻唯有努力奮鬥，才能克服困難，成就一番事業。", audio:"https://sutian.moe.edu.tw/media/senn/mp3/imtong/Yx/s7/271611.mp3"},
@@ -423,10 +391,11 @@
         quizList: [],
         currentIndex: 0,
         answered: [], 
-        isRecording: false
+        isRecording: false,
+        audioContext: null,
+        mediaStream: null
     };
 
-    let recognition = null;
     let currentAudio = null;
 
     // --- 選單互動 ---
@@ -449,23 +418,21 @@
     // --- 遊戲邏輯 ---
 
     function startGame() {
-        // 02. 亂數出題
+        // Condition 4: 亂數出題，不重複
         let shuffled = [...rawData].sort(() => 0.5 - Math.random());
         state.quizList = shuffled.slice(0, state.count);
         state.currentIndex = 0;
         state.answered = new Array(state.count).fill(null);
 
-        // 切換畫面
         document.getElementById('menu-view').style.display = 'none';
         document.getElementById('game-view').style.display = 'flex';
         
         loadQuestion();
-        setupRecognition();
     }
 
     function returnToMenu() {
         if(currentAudio) { currentAudio.pause(); }
-        if(recognition) { recognition.stop(); }
+        stopRecording();
         document.getElementById('game-view').style.display = 'none';
         document.getElementById('menu-view').style.display = 'block';
     }
@@ -483,14 +450,12 @@
             contentEl.innerText = item.tl;
         }
         
-        // 重置回饋區
         const feedbackBox = document.getElementById('feedback-box');
         feedbackBox.className = 'feedback-area'; 
         document.getElementById('feedback-text').innerHTML = '請按下麥克風開始作答';
         document.getElementById('feedback-text').className = 'result-text';
         document.getElementById('feedback-msg').innerText = '';
 
-        // 綁定音檔 (05. 提供音檔播放鈕)
         const playBtn = document.getElementById('play-audio-btn');
         playBtn.onclick = () => {
             if(currentAudio) currentAudio.pause();
@@ -498,7 +463,6 @@
             currentAudio.play();
         };
 
-        // 檢查是否已作答，若已作答顯示之前的結果
         if(state.answered[state.currentIndex]) {
             showFeedback(state.answered[state.currentIndex]);
         }
@@ -522,138 +486,176 @@
         }
     }
 
-    // --- 語音辨識與比對邏輯 ---
+    // --- 聲音模仿與音節比對邏輯 (取代 SpeechRecognition) ---
 
-    function setupRecognition() {
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            alert("您的瀏覽器不支援語音辨識功能 (Web Speech API)，請使用 Chrome 或 Edge 瀏覽器。");
-            return;
+    // 取得目標音節數 (簡單估算法)
+    function getTargetSyllableCount(item) {
+        if (state.mode === 'hanji') {
+            // 漢字模式：計算非標點符號的字數
+            // 忽略標點：，、。；：「」『』（）？！
+            const cleanHanji = item.hanji.replace(/[，、。；：「」『』（）？！\.\,\?\!\s]/g, "");
+            return cleanHanji.length;
+        } else {
+            // 羅馬字模式：計算空白或連字號分隔的詞數
+            // Ah-á thiann luî -> Ah, á, thiann, luî -> 4
+            const cleanTL = item.tl.replace(/[\.\,\?\!]/g, "").trim();
+            const parts = cleanTL.split(/[\s\-]+/); // 以空白或連字號分隔
+            return parts.filter(p => p.length > 0).length;
         }
+    }
 
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.lang = 'zh-TW'; 
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
+    function stopRecording() {
+        if (state.mediaStream) {
+            state.mediaStream.getTracks().forEach(track => track.stop());
+            state.mediaStream = null;
+        }
+        if (state.audioContext) {
+            state.audioContext.close();
+            state.audioContext = null;
+        }
+        state.isRecording = false;
+        document.getElementById('record-btn').classList.remove('recording');
+    }
 
+    // 啟動錄音與分析
+    async function startAudioAnalysis() {
         const recordBtn = document.getElementById('record-btn');
+        if (state.isRecording) return;
 
-        recordBtn.onclick = () => {
-            if (state.isRecording) {
-                recognition.stop();
-                return;
-            }
-            // 17. 語音回答時間隨題目長度調整
-            const targetText = state.quizList[state.currentIndex].hanji;
-            const duration = Math.max(3000, targetText.length * 800); 
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            state.mediaStream = stream;
+            state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const source = state.audioContext.createMediaStreamSource(stream);
+            const analyser = state.audioContext.createAnalyser();
             
-            recognition.start();
+            analyser.fftSize = 512;
+            source.connect(analyser);
+
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+
             state.isRecording = true;
             recordBtn.classList.add('recording');
 
-            // 設定自動停止
-            setTimeout(() => {
-                if (state.isRecording) {
-                    recognition.stop();
+            // 參數設定
+            const targetCount = getTargetSyllableCount(state.quizList[state.currentIndex]);
+            // 根據題目長度決定錄音時間，每個字約 0.8秒，最少 2.5秒
+            const recordDuration = Math.max(2500, targetCount * 800);
+            
+            let startTime = Date.now();
+            let maxVolumeDetected = 0;
+            let syllableCount = 0;
+            let isSpeaking = false;
+            let silenceDuration = 0;
+            
+            // 音量門檻 (0-255)
+            const SPEAK_THRESHOLD = 25; 
+            const SILENCE_DEBOUNCE = 150; // ms
+
+            const processLoop = setInterval(() => {
+                if (!state.isRecording) {
+                    clearInterval(processLoop);
+                    return;
                 }
-            }, duration);
-        };
 
-        recognition.onend = () => {
-            state.isRecording = false;
-            recordBtn.classList.remove('recording');
-        };
+                analyser.getByteFrequencyData(dataArray);
+                
+                // 計算平均音量
+                let sum = 0;
+                for(let i = 0; i < bufferLength; i++) {
+                    sum += dataArray[i];
+                }
+                let average = sum / bufferLength;
+                
+                // 紀錄最大音量 (Condition 3: 檢查是否有聲音)
+                if (average > maxVolumeDetected) {
+                    maxVolumeDetected = average;
+                }
 
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            checkAnswer(transcript);
-        };
-        
-        recognition.onerror = (event) => {
-            console.error("Speech recognition error", event.error);
-            state.isRecording = false;
-            recordBtn.classList.remove('recording');
-        };
-    }
-
-    // 計算 Levenshtein Distance 用於文字相似度
-    function getSimilarity(s1, s2) {
-        let longer = s1;
-        let shorter = s2;
-        if (s1.length < s2.length) {
-            longer = s2;
-            shorter = s1;
-        }
-        const longerLength = longer.length;
-        if (longerLength === 0) {
-            return 1.0;
-        }
-        return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
-    }
-
-    function editDistance(s1, s2) {
-        s1 = s1.toLowerCase();
-        s2 = s2.toLowerCase();
-        const costs = new Array();
-        for (let i = 0; i <= s1.length; i++) {
-            let lastValue = i;
-            for (let j = 0; j <= s2.length; j++) {
-                if (i === 0) {
-                    costs[j] = j;
+                // 簡單的音節/波峰偵測
+                if (average > SPEAK_THRESHOLD) {
+                    if (!isSpeaking) {
+                        isSpeaking = true;
+                        syllableCount++; // 偵測到聲音開始，算一個音節
+                        // console.log("Syllable detect!");
+                    }
+                    silenceDuration = 0;
                 } else {
-                    if (j > 0) {
-                        let newValue = costs[j - 1];
-                        if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
-                            newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
-                        }
-                        costs[j - 1] = lastValue;
-                        lastValue = newValue;
+                    silenceDuration += 50; // 假設 interval 約 50ms 跑一次
+                    if (silenceDuration > SILENCE_DEBOUNCE) {
+                        isSpeaking = false;
                     }
                 }
-            }
-            if (i > 0) {
-                costs[s2.length] = lastValue;
-            }
+
+                // 時間到停止錄音
+                if (Date.now() - startTime > recordDuration) {
+                    clearInterval(processLoop);
+                    stopRecording();
+                    evaluateResult(syllableCount, maxVolumeDetected, targetCount);
+                }
+
+            }, 50);
+
+        } catch (err) {
+            console.error("Audio Error:", err);
+            alert("無法存取麥克風，請確認權限或使用 HTTPS 環境。");
+            state.isRecording = false;
+            recordBtn.classList.remove('recording');
         }
-        return costs[s2.length];
     }
 
-    function checkAnswer(userVoice) {
-        if(!userVoice) return; // 17. 若未輸入聲音，不得給予"正確"
+    document.getElementById('record-btn').onclick = () => {
+        if(state.isRecording) {
+            // 手動停止
+            // 這裡簡化處理：手動停止不進行結算，或者是設標記讓 interval 結算
+            // 簡單起見，點擊第二次不做動作，讓它自動跑完時間，或者重置
+            // 為了 UX，這裡設定為不能手動停止，需等待時間結束(模仿 Duolingo 的聆聽模式)
+            return; 
+        }
+        startAudioAnalysis();
+    };
 
-        const currentItem = state.quizList[state.currentIndex];
-        // 06. 忽略性別、聲音、速度，僅比對文字內容
-        // 清除標點符號進行比對，主要比對漢字 (因為語音辨識輸出漢字)
-        const targetClean = currentItem.hanji.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, "");
-        const userClean = userVoice.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, "");
+    function evaluateResult(userSyllables, maxVolume, targetSyllables) {
+        // Condition 3: 若無輸入聲音 (音量過小)，不得給正確
+        if (maxVolume < 10) { // 雜訊門檻
+            finishCheck('no-sound', state.mode === 'hanji' ? state.quizList[state.currentIndex].hanji : state.quizList[state.currentIndex].tl);
+            return;
+        }
 
-        const similarity = getSimilarity(targetClean, userClean);
-        let status = 'wrong';
-
-        // 06. 只要20%相似即給予正確回饋 (定義：>=20% 算通過)
-        // 07. 但需區分：正確、錯誤、部分錯誤
-        // 定義邏輯：
-        // >= 0.7 : 正確 (非常準)
-        // 0.2 <= x < 0.7 : 部分正確 (符合20%即回饋原則，但顯示部分錯誤)
-        // < 0.2 : 錯誤
+        // Condition 2: 輸入語音的音節需與來源音檔符合 (相似度計算)
+        // 使用音節數量差異來估算相似度
+        // 差異 0 -> 100% 相似
+        // 差異 = Target -> 0% 相似
         
-        if (similarity >= 0.7) {
+        const diff = Math.abs(userSyllables - targetSyllables);
+        let similarity = 1 - (diff / targetSyllables);
+        if (similarity < 0) similarity = 0;
+
+        console.log(`Target: ${targetSyllables}, User: ${userSyllables}, Sim: ${similarity}`);
+
+        // Condition 1: 只要 40% 相似即給 "正確回饋"
+        let status = 'wrong';
+        
+        if (similarity >= 0.4) {
             status = 'correct';
-        } else if (similarity >= 0.2) {
-            status = 'partial';
+        } else if (similarity > 0.1) {
+            status = 'partial'; // 介於中間給予部分回饋 (Optional, 但為了 UX 更好)
         } else {
             status = 'wrong';
         }
 
+        const displayText = state.mode === 'hanji' ? state.quizList[state.currentIndex].hanji : state.quizList[state.currentIndex].tl;
+        finishCheck(status, displayText);
+    }
+
+    function finishCheck(status, displayText) {
         const resultObj = {
             status: status,
-            targetDisplay: state.mode === 'hanji' ? currentItem.hanji : currentItem.tl
+            targetDisplay: displayText
         };
-
         state.answered[state.currentIndex] = resultObj;
         showFeedback(resultObj);
-        
-        // 14. 答題後不要自動進行下一題
     }
 
     function showFeedback(result) {
@@ -661,34 +663,30 @@
         const textDiv = document.getElementById('feedback-text');
         const msgDiv = document.getElementById('feedback-msg');
         
-        box.className = 'feedback-area'; // reset classes
+        box.className = 'feedback-area';
 
         let displayText = result.targetDisplay;
         let msg = "";
 
-        // 07. 顯示答案格式設定
         if (result.status === 'correct') {
             box.classList.add('status-correct');
             textDiv.className = 'result-text'; 
-            textDiv.innerText = displayText; // 綠字顯示
+            textDiv.innerText = displayText;
             msg = "正確！共你拍噗仔！";
-        } else if (result.status === 'wrong') {
+        } else if (result.status === 'wrong' || result.status === 'no-sound') {
             box.classList.add('status-wrong');
             textDiv.className = 'result-text';
-            textDiv.innerText = displayText; // 紅字顯示
-            msg = "毋著！你閣試一擺！";
+            textDiv.innerText = displayText;
+            msg = result.status === 'no-sound' ? "無聽著聲音，請閣講一擺！" : "毋著！你閣試一擺！";
         } else {
-            // Partial: 綠紅字穿插顯示
+            // Partial
             box.classList.add('status-partial');
             textDiv.className = 'result-text partial-text';
-            
-            // 建立穿插效果 (每個字元包一個 span)
             let html = '';
             for (let char of displayText) {
                 html += `<span>${char}</span>`;
             }
             textDiv.innerHTML = html;
-            
             msg = "部份毋著，閣一改！";
         }
 
