@@ -39,27 +39,39 @@
 
         #app {
             width: 95%;
-            max-width: 900px; /* 稍微加寬以容納水平按鈕 */
-            height: 90vh;
+            max-width: 900px;
+            height: 90vh; /* 固定高度，確保版面不亂跑 */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
 
+        /* 遊戲容器改用 Grid 佈局，鎖定按鈕位置 */
         .game-container {
             width: 100%;
+            height: 100%;
+            max-height: 700px;
             background: var(--panel-bg);
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             padding: 20px;
+            
+            /* 關鍵：Grid 佈局 */
+            display: grid;
+            grid-template-rows: 1fr auto auto; /* 上方內容區(彈性)、回饋區、下方按鈕區(固定) */
+            gap: 15px;
+            position: relative;
+        }
+
+        /* 內容包裝區，確保垂直置中 */
+        .content-wrapper {
             display: flex;
             flex-direction: column;
+            justify-content: center;
             align-items: center;
-            justify-content: space-between;
-            height: 100%;
-            max-height: 700px;
-            position: relative;
+            width: 100%;
+            overflow: hidden; /* 防止內容撐開 */
         }
 
         #menu-view {
@@ -116,29 +128,37 @@
 
         .table-view {
             width: 100%;
-            margin-bottom: 15px;
             border-collapse: separate;
             border-spacing: 0;
             border: 2px solid #e5e5e5;
             border-radius: 12px;
             overflow: hidden;
-            flex-grow: 1;
+            table-layout: fixed; /* 固定表格佈局 */
         }
 
         .table-view th, .table-view td {
-            padding: 15px;
+            padding: 12px;
             text-align: left;
             border-bottom: 1px solid #eee;
             vertical-align: middle;
         }
         .table-view th { background: #f7f7f7; width: 25%; font-weight: bold; color: #555; white-space: nowrap;}
         
+        /* 釋義欄位特別處理 */
         .table-view td { 
             background: #fff; 
             color: #333; 
-            line-height: 1.5;
-            font-size: clamp(1rem, 4vw, 1.3rem); 
+            line-height: 1.4;
+            /* 預設字體大小，JS 會根據長度覆寫 */
+            font-size: 1.2rem; 
+            word-wrap: break-word;
         }
+
+        /* 動態字體大小 Class */
+        .text-lg { font-size: 1.3rem; }
+        .text-md { font-size: 1.1rem; }
+        .text-sm { font-size: 0.95rem; }
+        .text-xs { font-size: 0.85rem; line-height: 1.2; }
 
         .target-sentence { 
             font-weight: bold; 
@@ -152,18 +172,19 @@
             text-align: center;
             font-size: 1.3rem;
             font-weight: bold;
-            padding: 15px;
+            padding: 10px;
             border-radius: 12px;
-            margin: 10px 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             border: 2px solid transparent;
             background: #f8f8f8;
+            /* Grid item placement */
+            align-self: end;
         }
 
-        .feedback-msg { font-size: 1rem; margin-top: 8px; color: #555; }
+        .feedback-msg { font-size: 1rem; margin-top: 5px; color: #555; }
 
         .status-correct { border-color: var(--color-correct); background: #dffbea; }
         .status-correct .result-text { color: var(--color-correct); }
@@ -178,16 +199,16 @@
         .partial-text span:nth-child(even) { color: var(--color-wrong); }
         .status-partial .feedback-msg { color: #d19d00; }
 
-        /* --- 新版控制列樣式 --- */
+        /* 按鈕列固定樣式 */
         .control-bar {
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 15px;
-            margin-top: 10px;
-            padding: 10px 0;
-            flex-wrap: nowrap; /* 強制不換行，保持同一水平線 */
+            padding-top: 10px;
+            border-top: 2px solid #f0f0f0;
+            flex-wrap: nowrap;
         }
 
         .icon-btn {
@@ -202,7 +223,7 @@
             font-size: 26px;
             box-shadow: 0 4px 0 rgba(0,0,0,0.2);
             transition: transform 0.1s;
-            flex-shrink: 0; /* 防止按鈕被壓縮 */
+            flex-shrink: 0;
         }
         .icon-btn:active { transform: translateY(4px); box-shadow: none; }
         
@@ -232,30 +253,22 @@
             cursor: pointer;
             font-family: var(--font-main);
             font-size: 1rem;
-            white-space: nowrap; /* 禁止文字換行 */
-            height: 50px; /* 統一高度 */
+            white-space: nowrap;
+            height: 50px;
             display: flex;
             align-items: center;
         }
         .nav-btn:hover { background: #f9f9f9; color: #888; }
         .nav-btn:active { border-bottom-width: 2px; transform: translateY(2px); }
         
-        /* 響應式調整 */
         @media (max-width: 600px) {
             .table-view th { width: 30px; font-size: 0.9rem; text-align: center; }
-            .table-view td { font-size: 1rem; }
+            .table-view td { padding: 8px; }
             h1 { font-size: 1.5rem; }
             
-            /* 手機版調整間距與按鈕大小 */
             .control-bar { gap: 8px; }
             .icon-btn { width: 55px; height: 55px; font-size: 22px; }
             .nav-btn { padding: 8px 10px; font-size: 0.9rem; height: 45px; }
-        }
-
-        @media (max-width: 400px) {
-            /* 小螢幕再縮小 */
-            .control-bar { gap: 5px; }
-            .nav-btn { padding: 5px 8px; font-size: 0.8rem; }
         }
     </style>
 </head>
@@ -291,20 +304,22 @@
 
     <div id="game-view" class="game-container" style="display: none;">
         
-        <table class="table-view">
-            <tr>
-                <th>序號</th>
-                <td id="q-index">1</td>
-            </tr>
-            <tr>
-                <th>俗諺語詞目</th>
-                <td id="q-content" class="target-sentence">--</td>
-            </tr>
-            <tr>
-                <th>華語釋義</th>
-                <td id="q-meaning">--</td>
-            </tr>
-        </table>
+        <div class="content-wrapper">
+            <table class="table-view">
+                <tr>
+                    <th>序號</th>
+                    <td id="q-index">1</td>
+                </tr>
+                <tr>
+                    <th>俗諺語詞目</th>
+                    <td id="q-content" class="target-sentence">--</td>
+                </tr>
+                <tr>
+                    <th>華語釋義</th>
+                    <td id="q-meaning">--</td>
+                </tr>
+            </table>
+        </div>
 
         <div id="feedback-box" class="feedback-area">
             <div id="feedback-text" class="result-text">請按下麥克風開始作答</div>
@@ -313,17 +328,9 @@
 
         <div class="control-bar">
             <button class="nav-btn" onclick="returnToMenu()">返回選單</button>
-            
-            <button class="icon-btn btn-audio" id="play-audio-btn" title="播放音檔">
-                🔊
-            </button>
-            
-            <button class="icon-btn btn-record" id="record-btn" title="語音作答">
-                🎙️
-            </button>
-            
+            <button class="icon-btn btn-audio" id="play-audio-btn" title="播放音檔">🔊</button>
+            <button class="icon-btn btn-record" id="record-btn" title="語音作答">🎙️</button>
             <button class="nav-btn" id="prev-btn" onclick="prevQuestion()">上一題</button>
-            
             <button class="nav-btn" id="next-btn" onclick="nextQuestion()">下一題</button>
         </div>
     </div>
@@ -418,14 +425,13 @@
     // --- 遊戲邏輯 ---
 
     function startGame() {
-        // Condition 4: 亂數出題，不重複
         let shuffled = [...rawData].sort(() => 0.5 - Math.random());
         state.quizList = shuffled.slice(0, state.count);
         state.currentIndex = 0;
         state.answered = new Array(state.count).fill(null);
 
         document.getElementById('menu-view').style.display = 'none';
-        document.getElementById('game-view').style.display = 'flex';
+        document.getElementById('game-view').style.display = 'grid'; // 切換為 Grid
         
         loadQuestion();
     }
@@ -441,7 +447,22 @@
         const item = state.quizList[state.currentIndex];
         
         document.getElementById('q-index').innerText = state.currentIndex + 1;
-        document.getElementById('q-meaning').innerText = item.meaning;
+        
+        // 釋義處理：根據長度自動縮小文字
+        const meaningEl = document.getElementById('q-meaning');
+        meaningEl.innerText = item.meaning;
+        meaningEl.className = ''; // 重置 class
+        
+        const len = item.meaning.length;
+        if (len > 80) {
+            meaningEl.classList.add('text-xs');
+        } else if (len > 50) {
+            meaningEl.classList.add('text-sm');
+        } else if (len > 30) {
+            meaningEl.classList.add('text-md');
+        } else {
+            meaningEl.classList.add('text-lg');
+        }
 
         const contentEl = document.getElementById('q-content');
         if (state.mode === 'hanji') {
@@ -490,11 +511,9 @@
 
     function getTargetSyllableCount(item) {
         if (state.mode === 'hanji') {
-            // 漢字模式：計算非標點符號的字數
             const cleanHanji = item.hanji.replace(/[，、。；：「」『』（）？！\.\,\?\!\s]/g, "");
             return cleanHanji.length;
         } else {
-            // 羅馬字模式：計算空白或連字號分隔的詞數
             const cleanTL = item.tl.replace(/[\.\,\?\!]/g, "").trim();
             const parts = cleanTL.split(/[\s\-]+/); 
             return parts.filter(p => p.length > 0).length;
@@ -615,7 +634,8 @@
 
         let status = 'wrong';
         
-        if (similarity >= 0.4) {
+        // 修正：只要 30% 相似即給正確回饋
+        if (similarity >= 0.3) {
             status = 'correct';
         } else if (similarity > 0.1) {
             status = 'partial'; 
