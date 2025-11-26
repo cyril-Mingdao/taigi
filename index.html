@@ -7,10 +7,12 @@
     <link href="https://tauhu.tw/tauhu-oo.css" rel="stylesheet">
     <style>
         :root {
+            /* 15. 字體設定 */
             --font-main: 'tauhu-oo', sans-serif;
             --color-correct: #58cc02;
             --color-wrong: #ff4b4b;
-            --color-partial: #ffc800;
+            --color-partial: #ffc800; /* 用於邊框或背景 */
+            /* 12. 漸層背景 */
             --bg-start: #a18cd1;
             --bg-end: #fbc2eb;
             --panel-bg: rgba(255, 255, 255, 0.95);
@@ -18,7 +20,8 @@
 
         * {
             box-sizing: border-box;
-            user-select: none; /* 禁止選取文字 */
+            /* 10. 禁止選取文字 */
+            user-select: none;
             -webkit-user-select: none;
         }
 
@@ -29,28 +32,28 @@
             background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
             height: 100vh;
             width: 100vw;
-            overflow: hidden; /* 禁止捲動 */
+            overflow: hidden; /* 13. 禁止捲動 */
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* 禁止右鍵選單 */
+        /* 10. 禁止右鍵 */
         body[oncontextmenu="return false;"] {
             -webkit-touch-callout: none;
         }
 
         #app {
             width: 95%;
-            max-width: 1000px; /* 為了在大螢幕上好看 */
-            height: 90vh; /* 保持在視窗內 */
+            max-width: 800px;
+            height: 90vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
 
-        /* 16:5 比例的容器概念 (透過 flex 排版達成不捲動) */
+        /* 遊戲主容器 */
         .game-container {
             width: 100%;
             background: var(--panel-bg);
@@ -60,12 +63,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            min-height: 300px;
+            justify-content: space-between; /* 確保內容分布 */
+            height: 100%;
+            max-height: 700px;
             position: relative;
         }
 
-        /* 選單頁面 */
+        /* 選單樣式 */
         #menu-view {
             text-align: center;
             width: 100%;
@@ -75,6 +79,7 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
         }
 
+        /* 16. 標題 */
         h1 { margin: 0 0 10px 0; color: #333; font-size: 2rem; }
         h2 { margin: 0 0 30px 0; color: #666; font-size: 1.2rem; }
 
@@ -118,7 +123,7 @@
         }
         .btn-primary:hover { background: #46a302; }
 
-        /* 遊戲頁面結構 */
+        /* 03. 題目顯示表格 */
         .table-view {
             width: 100%;
             margin-bottom: 15px;
@@ -127,44 +132,110 @@
             border: 2px solid #e5e5e5;
             border-radius: 12px;
             overflow: hidden;
+            flex-grow: 1; /* 讓表格佔據空間 */
         }
 
         .table-view th, .table-view td {
-            padding: 12px;
+            padding: 15px;
             text-align: left;
             border-bottom: 1px solid #eee;
+            vertical-align: middle;
         }
-        .table-view th { background: #f7f7f7; width: 30%; font-weight: bold; color: #555; }
-        .table-view td { background: #fff; font-size: 1.2rem; color: #333; line-height: 1.4; }
+        .table-view th { background: #f7f7f7; width: 25%; font-weight: bold; color: #555; white-space: nowrap;}
+        
+        /* 08. 自動調整文字大小：使用 clamp 或 viewport units */
+        .table-view td { 
+            background: #fff; 
+            color: #333; 
+            line-height: 1.5;
+            font-size: clamp(1rem, 4vw, 1.3rem); 
+        }
 
-        .target-sentence { font-size: 1.5rem; font-weight: bold; color: #222; }
+        .target-sentence { 
+            font-weight: bold; 
+            color: #222;
+            font-size: clamp(1.2rem, 5vw, 1.8rem) !important;
+        }
 
-        /* 控制區 */
+        /* 07. 回饋區顯示樣式 */
+        .feedback-area {
+            width: 100%;
+            min-height: 80px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid transparent;
+            background: #f8f8f8;
+        }
+
+        .feedback-msg {
+            font-size: 1rem;
+            margin-top: 8px;
+            color: #555;
+        }
+
+        /* 狀態樣式：正確 */
+        .status-correct {
+            border-color: var(--color-correct);
+            background: #dffbea;
+        }
+        .status-correct .result-text { color: var(--color-correct); }
+        .status-correct .feedback-msg { color: var(--color-correct); }
+
+        /* 狀態樣式：錯誤 */
+        .status-wrong {
+            border-color: var(--color-wrong);
+            background: #ffdfe0;
+        }
+        .status-wrong .result-text { color: var(--color-wrong); }
+        .status-wrong .feedback-msg { color: var(--color-wrong); }
+
+        /* 狀態樣式：部分錯誤 (綠紅穿插) */
+        .status-partial {
+            border-color: #ffd900;
+            background: #fff8d6;
+        }
+        
+        /* 綠紅穿插的實現：奇數綠，偶數紅 */
+        .partial-text span:nth-child(odd) { color: var(--color-correct); }
+        .partial-text span:nth-child(even) { color: var(--color-wrong); }
+        .status-partial .feedback-msg { color: #d19d00; }
+
+
+        /* 控制按鈕區 */
         .controls {
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 15px;
-            margin-top: auto;
+            margin-bottom: 10px;
         }
 
         .action-btns {
             display: flex;
-            gap: 20px;
+            gap: 30px;
             align-items: center;
         }
 
+        /* 05, 06 按鈕樣式 */
         .icon-btn {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             border: none;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 28px;
             box-shadow: 0 4px 0 rgba(0,0,0,0.2);
             transition: transform 0.1s;
         }
@@ -172,35 +243,24 @@
         
         .btn-audio { background: #1cb0f6; color: white; border: 2px solid #1899d6; }
         .btn-record { background: #fff; color: #1cb0f6; border: 2px solid #e5e5e5; }
-        .btn-record.recording { background: #ff4b4b; color: white; animation: pulse 1.5s infinite; border-color: #d43f3f; }
-
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 75, 75, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 75, 75, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 75, 75, 0); } }
-
-        /* 回饋區 */
-        .feedback-area {
-            width: 100%;
-            min-height: 60px;
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-            padding: 10px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            display: none; /* 預設隱藏 */
+        .btn-record.recording { 
+            background: #ff4b4b; 
+            color: white; 
+            border-color: #d43f3f;
+            animation: pulse 1.5s infinite; 
         }
-        .feedback-correct { background: #dffbea; color: var(--color-correct); border: 2px solid var(--color-correct); }
-        .feedback-wrong { background: #ffdfe0; color: var(--color-wrong); border: 2px solid var(--color-wrong); }
-        .feedback-partial { background: #fff8d6; color: #b58900; border: 2px solid var(--color-partial); }
 
-        .result-text span.correct { color: var(--color-correct); }
-        .result-text span.wrong { color: var(--color-wrong); }
+        @keyframes pulse { 
+            0% { box-shadow: 0 0 0 0 rgba(255, 75, 75, 0.4); } 
+            70% { box-shadow: 0 0 0 15px rgba(255, 75, 75, 0); } 
+            100% { box-shadow: 0 0 0 0 rgba(255, 75, 75, 0); } 
+        }
 
-        /* 底部導航 */
+        /* 14. 導航列 */
         .nav-bar {
             width: 100%;
             display: flex;
             justify-content: space-between;
-            margin-top: 15px;
             border-top: 2px solid #f0f0f0;
             padding-top: 15px;
         }
@@ -213,20 +273,18 @@
             padding: 10px 20px;
             color: #afafaf;
             font-weight: bold;
-            cursor: not-allowed;
-        }
-        .nav-btn.active {
-            color: #4b4b4b;
             cursor: pointer;
+            font-family: var(--font-main);
         }
-        .nav-btn.next-btn { background: #58cc02; border-color: #46a302; color: white; }
-        .nav-btn.next-btn:active { border-bottom-width: 2px; transform: translateY(2px); }
-
-        /* 響應式字體調整 */
+        .nav-btn:hover { background: #f9f9f9; color: #888; }
+        .nav-btn:active { border-bottom-width: 2px; transform: translateY(2px); }
+        
+        /* 響應式 */
         @media (max-width: 600px) {
-            .table-view th, .table-view td { padding: 8px; font-size: 1rem; }
-            .target-sentence { font-size: 1.2rem; }
+            .table-view th { width: 30px; font-size: 0.9rem; text-align: center; }
+            .table-view td { font-size: 1rem; }
             h1 { font-size: 1.5rem; }
+            .icon-btn { width: 60px; height: 60px; font-size: 24px; }
         }
     </style>
 </head>
@@ -261,26 +319,25 @@
     </div>
 
     <div id="game-view" class="game-container" style="display: none;">
-        <div style="width: 100%;">
-            <table class="table-view">
-                <tr>
-                    <th>序號</th>
-                    <td id="q-index">1</td>
-                </tr>
-                <tr>
-                    <th>俗諺語詞目</th>
-                    <td id="q-content" class="target-sentence">鴨仔聽雷</td>
-                </tr>
-                <tr>
-                    <th>華語釋義</th>
-                    <td id="q-meaning">...</td>
-                </tr>
-            </table>
+        
+        <table class="table-view">
+            <tr>
+                <th>序號</th>
+                <td id="q-index">1</td>
+            </tr>
+            <tr>
+                <th>俗諺語詞目</th>
+                <td id="q-content" class="target-sentence">--</td>
+            </tr>
+            <tr>
+                <th>華語釋義</th>
+                <td id="q-meaning">--</td>
+            </tr>
+        </table>
 
-            <div id="feedback-box" class="feedback-area">
-                <div id="feedback-text" class="result-text"></div>
-                <div id="feedback-msg" style="font-size: 0.9rem; margin-top:5px;"></div>
-            </div>
+        <div id="feedback-box" class="feedback-area">
+            <div id="feedback-text" class="result-text">請按下麥克風開始作答</div>
+            <div id="feedback-msg" class="feedback-msg"></div>
         </div>
 
         <div class="controls">
@@ -295,17 +352,17 @@
         </div>
 
         <div class="nav-bar">
-            <button class="nav-btn active" onclick="returnToMenu()">返回選單</button>
+            <button class="nav-btn" onclick="returnToMenu()">返回選單</button>
             <div>
-                <button class="nav-btn active" id="prev-btn" onclick="prevQuestion()">上一題</button>
-                <button class="nav-btn active" id="next-btn" onclick="nextQuestion()">下一題</button>
+                <button class="nav-btn" id="prev-btn" onclick="prevQuestion()">上一題</button>
+                <button class="nav-btn" id="next-btn" onclick="nextQuestion()">下一題</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // --- 0. 資料庫 ---
+    // --- 18. 資料庫 ---
     const rawData = [
         {id:1, hanji:"鴨仔聽雷", tl:"Ah-á thiann luî.", meaning:"指鴨子聽到雷聲，並不知道是怎麼回事。比喻一個人對所接收的訊息無法理解。", audio:"https://sutian.moe.edu.tw/media/senn/mp3/imtong/39/IR/272041.mp3"},
         {id:2, hanji:"愛拚才會贏", tl:"Ài piànn tsiah ē iânn.", meaning:"要努力才會贏。比喻唯有努力奮鬥，才能克服困難，成就一番事業。", audio:"https://sutian.moe.edu.tw/media/senn/mp3/imtong/Yx/s7/271611.mp3"},
@@ -359,20 +416,20 @@
         {id:50, hanji:"牛就是牛，牽到北京也是牛", tl:"Gû tō sī gû, khan kàu Pak-kiann iā sī gû.", meaning:"把窮鄉僻壤的牛，牽到人文薈萃的京城，固執的牛脾氣還是依舊。形容人的個性不可能改變，縱使換了環境還是原來的樣子。", audio:"https://sutian.moe.edu.tw/media/senn/mp3/imtong/6L/Nc/269601.mp3"}
     ];
 
-    // --- 1. 狀態管理 ---
+    // --- 狀態管理 ---
     let state = {
-        mode: 'hanji', // 'hanji' or 'romaji'
+        mode: 'hanji',
         count: 5,
         quizList: [],
         currentIndex: 0,
-        answered: [], // 紀錄每題作答狀態 {status: 'correct'|'wrong'|'partial', userText: ''}
+        answered: [], 
         isRecording: false
     };
 
     let recognition = null;
     let currentAudio = null;
 
-    // --- 2. 初始化選單互動 ---
+    // --- 選單互動 ---
     document.querySelectorAll('#mode-select .btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             document.querySelectorAll('#mode-select .btn').forEach(b => b.classList.remove('selected'));
@@ -389,10 +446,10 @@
         });
     });
 
-    // --- 3. 遊戲邏輯 ---
+    // --- 遊戲邏輯 ---
 
     function startGame() {
-        // 準備題目
+        // 02. 亂數出題
         let shuffled = [...rawData].sort(() => 0.5 - Math.random());
         state.quizList = shuffled.slice(0, state.count);
         state.currentIndex = 0;
@@ -400,7 +457,7 @@
 
         // 切換畫面
         document.getElementById('menu-view').style.display = 'none';
-        document.getElementById('game-view').style.display = 'flex'; // Flexbox
+        document.getElementById('game-view').style.display = 'flex';
         
         loadQuestion();
         setupRecognition();
@@ -416,13 +473,9 @@
     function loadQuestion() {
         const item = state.quizList[state.currentIndex];
         
-        // 顯示序號 (1-based)
         document.getElementById('q-index').innerText = state.currentIndex + 1;
-        
-        // 顯示華語釋義
         document.getElementById('q-meaning').innerText = item.meaning;
 
-        // 顯示題目 (根據模式)
         const contentEl = document.getElementById('q-content');
         if (state.mode === 'hanji') {
             contentEl.innerText = item.hanji;
@@ -432,11 +485,12 @@
         
         // 重置回饋區
         const feedbackBox = document.getElementById('feedback-box');
-        feedbackBox.style.display = 'none';
-        feedbackBox.className = 'feedback-area';
-        document.getElementById('feedback-text').innerHTML = '';
+        feedbackBox.className = 'feedback-area'; 
+        document.getElementById('feedback-text').innerHTML = '請按下麥克風開始作答';
+        document.getElementById('feedback-text').className = 'result-text';
+        document.getElementById('feedback-msg').innerText = '';
 
-        // 綁定音檔
+        // 綁定音檔 (05. 提供音檔播放鈕)
         const playBtn = document.getElementById('play-audio-btn');
         playBtn.onclick = () => {
             if(currentAudio) currentAudio.pause();
@@ -468,7 +522,7 @@
         }
     }
 
-    // --- 4. 語音辨識與比對邏輯 ---
+    // --- 語音辨識與比對邏輯 ---
 
     function setupRecognition() {
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -478,7 +532,7 @@
 
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-        recognition.lang = 'zh-TW'; // 台灣華語/台語
+        recognition.lang = 'zh-TW'; 
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
 
@@ -489,7 +543,7 @@
                 recognition.stop();
                 return;
             }
-            // 計算錄音時間：根據題目長度動態調整 (每個字約 0.5~0.8秒，最少 3秒)
+            // 17. 語音回答時間隨題目長度調整
             const targetText = state.quizList[state.currentIndex].hanji;
             const duration = Math.max(3000, targetText.length * 800); 
             
@@ -519,13 +573,10 @@
             console.error("Speech recognition error", event.error);
             state.isRecording = false;
             recordBtn.classList.remove('recording');
-            if(event.error === 'not-allowed') {
-                alert('無法存取麥克風，請確認您的瀏覽器權限或是否使用 HTTPS。');
-            }
         };
     }
 
-    // 文字相似度比對 (Levenshtein Distance)
+    // 計算 Levenshtein Distance 用於文字相似度
     function getSimilarity(s1, s2) {
         let longer = s1;
         let shorter = s2;
@@ -568,25 +619,23 @@
     }
 
     function checkAnswer(userVoice) {
-        if(!userVoice) return;
+        if(!userVoice) return; // 17. 若未輸入聲音，不得給予"正確"
 
         const currentItem = state.quizList[state.currentIndex];
-        // 比對標準一律使用「漢字」，因為語音辨識大多回傳漢字
-        // 移除標點符號進行比對
+        // 06. 忽略性別、聲音、速度，僅比對文字內容
+        // 清除標點符號進行比對，主要比對漢字 (因為語音辨識輸出漢字)
         const targetClean = currentItem.hanji.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, "");
         const userClean = userVoice.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, "");
 
         const similarity = getSimilarity(targetClean, userClean);
         let status = 'wrong';
 
-        // 規則：只要 20% 相似即給予正確回饋 (依照 prompt)
-        // 但 Prompt 也要求 "部分錯誤" 狀態，這裡做分級：
-        // > 60%: 正確 (Green) - 雖然 prompt 說 20% 就正確，但為了區分 partial，我們設高一點作為完美，或者依照 prompt "正確" 定義寬鬆
-        // 修正：Prompt 說 "只要20%相似即給予正確回饋"，但也提到 "部分錯誤"。
-        // 邏輯調整：
-        // 1. 高相似度 (> 60%) -> 完全正確 (Green)
-        // 2. 低相似度 (20% - 60%) -> 部分正確 (Mixed) -> Prompt 實際上把這叫 "部分毋著"
-        // 3. 極低 (< 20%) -> 錯誤 (Red)
+        // 06. 只要20%相似即給予正確回饋 (定義：>=20% 算通過)
+        // 07. 但需區分：正確、錯誤、部分錯誤
+        // 定義邏輯：
+        // >= 0.7 : 正確 (非常準)
+        // 0.2 <= x < 0.7 : 部分正確 (符合20%即回饋原則，但顯示部分錯誤)
+        // < 0.2 : 錯誤
         
         if (similarity >= 0.7) {
             status = 'correct';
@@ -598,12 +647,13 @@
 
         const resultObj = {
             status: status,
-            userText: userVoice,
             targetDisplay: state.mode === 'hanji' ? currentItem.hanji : currentItem.tl
         };
 
         state.answered[state.currentIndex] = resultObj;
         showFeedback(resultObj);
+        
+        // 14. 答題後不要自動進行下一題
     }
 
     function showFeedback(result) {
@@ -611,39 +661,39 @@
         const textDiv = document.getElementById('feedback-text');
         const msgDiv = document.getElementById('feedback-msg');
         
-        box.style.display = 'block';
-        box.className = 'feedback-area'; // reset
-
-        // 顯示文字著色處理 (簡單版：整句變色，因單字對齊複雜)
-        // Prompt 要求：
-        // 正確 -> 綠字 + 標示
-        // 錯誤 -> 紅字 + 標示
-        // 部分 -> 綠紅穿插 + 標示 (這裡用簡易模擬：前半綠後半紅，或是單純混色文字)
+        box.className = 'feedback-area'; // reset classes
 
         let displayText = result.targetDisplay;
         let msg = "";
 
+        // 07. 顯示答案格式設定
         if (result.status === 'correct') {
-            box.classList.add('feedback-correct');
-            textDiv.innerHTML = `<span class="correct">${displayText}</span>`;
+            box.classList.add('status-correct');
+            textDiv.className = 'result-text'; 
+            textDiv.innerText = displayText; // 綠字顯示
             msg = "正確！共你拍噗仔！";
         } else if (result.status === 'wrong') {
-            box.classList.add('feedback-wrong');
-            textDiv.innerHTML = `<span class="wrong">${displayText}</span>`;
+            box.classList.add('status-wrong');
+            textDiv.className = 'result-text';
+            textDiv.innerText = displayText; // 紅字顯示
             msg = "毋著！你閣試一擺！";
         } else {
-            // Partial: 模擬穿插顯示 (簡單地將字串切半變色，因為無法精確知道錯在哪個字)
-            box.classList.add('feedback-partial');
-            const mid = Math.floor(displayText.length / 2);
-            const part1 = displayText.substring(0, mid);
-            const part2 = displayText.substring(mid);
-            textDiv.innerHTML = `<span class="correct">${part1}</span><span class="wrong">${part2}</span>`;
+            // Partial: 綠紅字穿插顯示
+            box.classList.add('status-partial');
+            textDiv.className = 'result-text partial-text';
+            
+            // 建立穿插效果 (每個字元包一個 span)
+            let html = '';
+            for (let char of displayText) {
+                html += `<span>${char}</span>`;
+            }
+            textDiv.innerHTML = html;
+            
             msg = "部份毋著，閣一改！";
         }
 
         msgDiv.innerText = msg;
     }
-
 </script>
 </body>
 </html>
