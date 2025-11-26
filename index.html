@@ -39,7 +39,7 @@
 
         #app {
             width: 95%;
-            max-width: 800px;
+            max-width: 900px; /* 稍微加寬以容納水平按鈕 */
             height: 90vh;
             display: flex;
             flex-direction: column;
@@ -178,33 +178,31 @@
         .partial-text span:nth-child(even) { color: var(--color-wrong); }
         .status-partial .feedback-msg { color: #d19d00; }
 
-        .controls {
+        /* --- 新版控制列樣式 --- */
+        .control-bar {
             width: 100%;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
             gap: 15px;
-            margin-bottom: 10px;
-        }
-
-        .action-btns {
-            display: flex;
-            gap: 30px;
-            align-items: center;
+            margin-top: 10px;
+            padding: 10px 0;
+            flex-wrap: nowrap; /* 強制不換行，保持同一水平線 */
         }
 
         .icon-btn {
-            width: 70px;
-            height: 70px;
+            width: 65px;
+            height: 65px;
             border-radius: 50%;
             border: none;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 28px;
+            font-size: 26px;
             box-shadow: 0 4px 0 rgba(0,0,0,0.2);
             transition: transform 0.1s;
+            flex-shrink: 0; /* 防止按鈕被壓縮 */
         }
         .icon-btn:active { transform: translateY(4px); box-shadow: none; }
         
@@ -223,37 +221,42 @@
             100% { box-shadow: 0 0 0 0 rgba(255, 75, 75, 0); } 
         }
 
-        .nav-bar {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            border-top: 2px solid #f0f0f0;
-            padding-top: 15px;
-        }
-
         .nav-btn {
             background: #fff;
             border: 2px solid #e5e5e5;
             border-bottom: 4px solid #e5e5e5;
             border-radius: 12px;
-            padding: 10px 20px;
+            padding: 10px 15px;
             color: #afafaf;
             font-weight: bold;
             cursor: pointer;
             font-family: var(--font-main);
+            font-size: 1rem;
+            white-space: nowrap; /* 禁止文字換行 */
+            height: 50px; /* 統一高度 */
+            display: flex;
+            align-items: center;
         }
         .nav-btn:hover { background: #f9f9f9; color: #888; }
         .nav-btn:active { border-bottom-width: 2px; transform: translateY(2px); }
         
+        /* 響應式調整 */
         @media (max-width: 600px) {
             .table-view th { width: 30px; font-size: 0.9rem; text-align: center; }
             .table-view td { font-size: 1rem; }
             h1 { font-size: 1.5rem; }
-            .icon-btn { width: 60px; height: 60px; font-size: 24px; }
+            
+            /* 手機版調整間距與按鈕大小 */
+            .control-bar { gap: 8px; }
+            .icon-btn { width: 55px; height: 55px; font-size: 22px; }
+            .nav-btn { padding: 8px 10px; font-size: 0.9rem; height: 45px; }
         }
-        
-        /* 視覺化音量顯示 (隱藏的輔助元素，確保邏輯運作) */
-        #meter { display: none; }
+
+        @media (max-width: 400px) {
+            /* 小螢幕再縮小 */
+            .control-bar { gap: 5px; }
+            .nav-btn { padding: 5px 8px; font-size: 0.8rem; }
+        }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -308,23 +311,20 @@
             <div id="feedback-msg" class="feedback-msg"></div>
         </div>
 
-        <div class="controls">
-            <div class="action-btns">
-                <button class="icon-btn btn-audio" id="play-audio-btn" title="播放音檔">
-                    🔊
-                </button>
-                <button class="icon-btn btn-record" id="record-btn" title="語音作答">
-                    🎙️
-                </button>
-            </div>
-        </div>
-
-        <div class="nav-bar">
+        <div class="control-bar">
             <button class="nav-btn" onclick="returnToMenu()">返回選單</button>
-            <div>
-                <button class="nav-btn" id="prev-btn" onclick="prevQuestion()">上一題</button>
-                <button class="nav-btn" id="next-btn" onclick="nextQuestion()">下一題</button>
-            </div>
+            
+            <button class="icon-btn btn-audio" id="play-audio-btn" title="播放音檔">
+                🔊
+            </button>
+            
+            <button class="icon-btn btn-record" id="record-btn" title="語音作答">
+                🎙️
+            </button>
+            
+            <button class="nav-btn" id="prev-btn" onclick="prevQuestion()">上一題</button>
+            
+            <button class="nav-btn" id="next-btn" onclick="nextQuestion()">下一題</button>
         </div>
     </div>
 </div>
@@ -486,20 +486,17 @@
         }
     }
 
-    // --- 聲音模仿與音節比對邏輯 (取代 SpeechRecognition) ---
+    // --- 聲音模仿與音節比對邏輯 ---
 
-    // 取得目標音節數 (簡單估算法)
     function getTargetSyllableCount(item) {
         if (state.mode === 'hanji') {
             // 漢字模式：計算非標點符號的字數
-            // 忽略標點：，、。；：「」『』（）？！
             const cleanHanji = item.hanji.replace(/[，、。；：「」『』（）？！\.\,\?\!\s]/g, "");
             return cleanHanji.length;
         } else {
             // 羅馬字模式：計算空白或連字號分隔的詞數
-            // Ah-á thiann luî -> Ah, á, thiann, luî -> 4
             const cleanTL = item.tl.replace(/[\.\,\?\!]/g, "").trim();
-            const parts = cleanTL.split(/[\s\-]+/); // 以空白或連字號分隔
+            const parts = cleanTL.split(/[\s\-]+/); 
             return parts.filter(p => p.length > 0).length;
         }
     }
@@ -517,7 +514,6 @@
         document.getElementById('record-btn').classList.remove('recording');
     }
 
-    // 啟動錄音與分析
     async function startAudioAnalysis() {
         const recordBtn = document.getElementById('record-btn');
         if (state.isRecording) return;
@@ -540,7 +536,6 @@
 
             // 參數設定
             const targetCount = getTargetSyllableCount(state.quizList[state.currentIndex]);
-            // 根據題目長度決定錄音時間，每個字約 0.8秒，最少 2.5秒
             const recordDuration = Math.max(2500, targetCount * 800);
             
             let startTime = Date.now();
@@ -549,9 +544,8 @@
             let isSpeaking = false;
             let silenceDuration = 0;
             
-            // 音量門檻 (0-255)
             const SPEAK_THRESHOLD = 25; 
-            const SILENCE_DEBOUNCE = 150; // ms
+            const SILENCE_DEBOUNCE = 150; 
 
             const processLoop = setInterval(() => {
                 if (!state.isRecording) {
@@ -561,34 +555,29 @@
 
                 analyser.getByteFrequencyData(dataArray);
                 
-                // 計算平均音量
                 let sum = 0;
                 for(let i = 0; i < bufferLength; i++) {
                     sum += dataArray[i];
                 }
                 let average = sum / bufferLength;
                 
-                // 紀錄最大音量 (Condition 3: 檢查是否有聲音)
                 if (average > maxVolumeDetected) {
                     maxVolumeDetected = average;
                 }
 
-                // 簡單的音節/波峰偵測
                 if (average > SPEAK_THRESHOLD) {
                     if (!isSpeaking) {
                         isSpeaking = true;
-                        syllableCount++; // 偵測到聲音開始，算一個音節
-                        // console.log("Syllable detect!");
+                        syllableCount++; 
                     }
                     silenceDuration = 0;
                 } else {
-                    silenceDuration += 50; // 假設 interval 約 50ms 跑一次
+                    silenceDuration += 50; 
                     if (silenceDuration > SILENCE_DEBOUNCE) {
                         isSpeaking = false;
                     }
                 }
 
-                // 時間到停止錄音
                 if (Date.now() - startTime > recordDuration) {
                     clearInterval(processLoop);
                     stopRecording();
@@ -607,40 +596,29 @@
 
     document.getElementById('record-btn').onclick = () => {
         if(state.isRecording) {
-            // 手動停止
-            // 這裡簡化處理：手動停止不進行結算，或者是設標記讓 interval 結算
-            // 簡單起見，點擊第二次不做動作，讓它自動跑完時間，或者重置
-            // 為了 UX，這裡設定為不能手動停止，需等待時間結束(模仿 Duolingo 的聆聽模式)
             return; 
         }
         startAudioAnalysis();
     };
 
     function evaluateResult(userSyllables, maxVolume, targetSyllables) {
-        // Condition 3: 若無輸入聲音 (音量過小)，不得給正確
-        if (maxVolume < 10) { // 雜訊門檻
+        if (maxVolume < 10) { 
             finishCheck('no-sound', state.mode === 'hanji' ? state.quizList[state.currentIndex].hanji : state.quizList[state.currentIndex].tl);
             return;
         }
 
-        // Condition 2: 輸入語音的音節需與來源音檔符合 (相似度計算)
-        // 使用音節數量差異來估算相似度
-        // 差異 0 -> 100% 相似
-        // 差異 = Target -> 0% 相似
-        
         const diff = Math.abs(userSyllables - targetSyllables);
         let similarity = 1 - (diff / targetSyllables);
         if (similarity < 0) similarity = 0;
 
         console.log(`Target: ${targetSyllables}, User: ${userSyllables}, Sim: ${similarity}`);
 
-        // Condition 1: 只要 40% 相似即給 "正確回饋"
         let status = 'wrong';
         
         if (similarity >= 0.4) {
             status = 'correct';
         } else if (similarity > 0.1) {
-            status = 'partial'; // 介於中間給予部分回饋 (Optional, 但為了 UX 更好)
+            status = 'partial'; 
         } else {
             status = 'wrong';
         }
